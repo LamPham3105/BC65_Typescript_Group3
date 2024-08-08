@@ -34,7 +34,7 @@ export interface UserData {
   email: string;
   password: string;
   phone: string;
-  birthday: string;
+  birthday: Date;
   avatar: string;
   gender: boolean;
   role: string;
@@ -110,8 +110,6 @@ export interface BookingCardProps {
   totalComment: number;
   totalStars: number;
   roomData: RoomData;
-  isBooking: boolean;
-  idBooking: string;
 }
 
 export interface CityMapProps {
@@ -133,14 +131,4 @@ export interface ProfileProps {
 
 export interface RoomProps {
   userBookingRoomData: UserBookingRoomData;
-}
-
-export interface UserProfileProps {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  birthday: string;
-  gender: boolean;
-  role: string;
 }

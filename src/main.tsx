@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 import { store } from "./redux/store.tsx";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import Notification from "./user/Components/Antd/Notification.tsx";
+import Notification from "./User/Components/Antd/Notification.tsx";
 
 const queryClient = new QueryClient();
 

@@ -68,15 +68,23 @@ const UserMenu: React.FC = () => {
     if (userLogin) {
       return (
         <div
-          className="dropdown-toggle nav-link"
+          className="dropdown-toggle"
           id="dropdownMenuButton"
           aria-haspopup="true"
           aria-expanded={showMenu}
           onClick={handleMenuToggle}
           style={{ cursor: "pointer" }}
         >
-          <i className="fa fa-user" aria-hidden="true">
-            <span style={{ paddingLeft: "10px" }}>{userLogin.user?.name}</span>
+          <i
+            className="fa fa-user"
+            aria-hidden="true"
+            style={{ color: "white" }}
+          >
+            <span
+              style={{ paddingLeft: "10px", color: "white", fontWeight: "400" }}
+            >
+              {userLogin.user?.name}
+            </span>
           </i>
         </div>
       );

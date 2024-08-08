@@ -31,16 +31,6 @@ export class RoomApi {
     } catch (error) {}
   }
 
-  async updateBookingRoom(bookingRoom: object, maDatPhong: string) {
-    try {
-      const res = await httpClient.put(
-        `/api/dat-phong/${maDatPhong}`,
-        bookingRoom
-      );
-      return res;
-    } catch (error) {}
-  }
-
   async getBookingRoomByUser(maNguoiDung: string) {
     try {
       const res = await httpClient.get(
@@ -60,6 +50,19 @@ export class RoomApi {
 
   //   return res.data.content;
   // }
+  async getBookingRoom() {
+    try {
+      const res = await httpClient.get("/api/dat-phong");
+      return res.data.content;
+    } catch (error) {}
+  }
+
+  async getBookingRoomByID(id: string) {
+    try {
+      const res = await httpClient.get(`/api/dat-phong/${id}`);
+      return res.data.content;
+    } catch (error) {}
+  }
 }
 
 export const roomApi = new RoomApi();
