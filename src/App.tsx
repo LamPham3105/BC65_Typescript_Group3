@@ -16,7 +16,6 @@ import RoomPage from "./user/Pages/RoomPage";
 import DynamicResourceLoader from "./DynamicLoader.tsx";
 import ManagePage from "./user/Pages/ManagePage.tsx";
 import BasicTablePage from "./admin/pagesAdmin/table/BasicTablePage.tsx";
-import LoginAdmin from "./admin/componentsAdmin/LoginAdmin.tsx";
 import AddUserForm from "./admin/pagesAdmin/form/AddUserForm.tsx";
 import EditUserForm from "./admin/pagesAdmin/form/EditUserForm.tsx";
 import TableRoom from "./admin/pagesAdmin/table/TableRoom.tsx";
