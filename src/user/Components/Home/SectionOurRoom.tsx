@@ -5,9 +5,7 @@ import Loading from "../Antd/Loading";
 import { RoomData, LocateError } from "../../../Model/Model";
 import useRoute from "../../../hook/useRoute";
 
-type Props = {};
-
-const SectionOurRoom = (props: Props) => {
+const SectionOurRoom: React.FC = () => {
   const { navigate } = useRoute();
 
   const queryResult: UseQueryResult<RoomData[], LocateError> = useQuery({

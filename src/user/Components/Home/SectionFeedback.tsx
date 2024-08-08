@@ -1,8 +1,6 @@
 import React from "react";
 
-type Props = {};
-
-const SectionFeedback = (props: Props) => {
+const SectionFeedback: React.FC = () => {
   return (
     <section className="ftco-section testimony-section bg-light">
       <div className="container">

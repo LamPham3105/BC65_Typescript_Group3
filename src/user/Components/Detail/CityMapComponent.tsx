@@ -4,7 +4,6 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { CityMapProps } from "../../../Model/Model";
 
-// Custom icon (optional)
 const customIcon = new L.Icon({
   iconUrl: "https://example.com/icon.png",
   iconSize: [32, 32],

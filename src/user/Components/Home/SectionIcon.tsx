@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { locateApi } from "../../../service/locate/locateApi";
@@ -9,9 +9,7 @@ import useRoute from "../../../hook/useRoute";
 import { RootState } from "../../../redux/store";
 import { editBooking } from "../../../redux/reducers/bookReducer";
 
-type Props = {};
-
-const SectionIcon = (props: Props) => {
+const SectionIcon: React.FC = () => {
   const dispatch = useDispatch();
   const { navigate } = useRoute();
 

@@ -1,8 +1,6 @@
 import React from "react";
 
-type Props = {};
-
-const RoomsNav = (props: Props) => {
+const RoomsNav: React.FC = () => {
   return (
     <div
       className="hero-wrap"

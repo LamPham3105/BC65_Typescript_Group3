@@ -4,18 +4,17 @@ import {
   Route,
   Routes,
 } from "react-router-dom";
-import HomeTemplate from "./User/Templates/HomeTemplate";
-import HomePage from "./User/Pages/HomePage";
-import DetailPage from "./User/Pages/DetailPage";
+import HomeTemplate from "./user/Templates/HomeTemplate";
+import HomePage from "./user/Pages/HomePage";
+import DetailPage from "./user/Pages/DetailPage";
 
 import AdminTemplate from "./admin/templates/AdminTemplate";
 import DashboardAdmin from "./admin/pagesAdmin/DashboardAdmin";
-import FormAdmin from "./admin/pagesAdmin/form/AddUserForm.tsx";
 import ManageAdmin from "./admin/pagesAdmin/ManageAdmin";
 import GoogleMap from "./admin/pagesAdmin/map/GoogleMap";
-import RoomPage from "./User/Pages/RoomPage";
+import RoomPage from "./user/Pages/RoomPage";
 import DynamicResourceLoader from "./DynamicLoader.tsx";
-import ManagePage from "./User/Pages/ManagePage.tsx";
+import ManagePage from "./user/Pages/ManagePage.tsx";
 import BasicTablePage from "./admin/pagesAdmin/table/BasicTablePage.tsx";
 import LoginAdmin from "./admin/componentsAdmin/LoginAdmin.tsx";
 import AddUserForm from "./admin/pagesAdmin/form/AddUserForm.tsx";
@@ -46,7 +45,7 @@ function App() {
             <Route path="info-user" element={<ManagePage />}></Route>
           </Route>
           {/* Admin Routes */}
-          <Route path="login-admin" element={<LoginAdmin />}></Route>
+          {/* <Route path="login-admin" element={<LoginAdmin />}></Route> */}
           <Route path="admin" element={<AdminTemplate />}>
             <Route path="dashboard-admin" element={<DashboardAdmin />}></Route>
             <Route path="add-user-form" element={<AddUserForm />}></Route>

@@ -1,6 +1,8 @@
+import { UserLogin } from "../../Model/Model";
 import { httpClient } from "../../util/util";
 import {
   USER_LOGIN,
+  getDataJsonStorage,
   setDataJsonStorage,
   setDataTextStorage,
 } from "../../util/utilMethod";
@@ -31,39 +33,37 @@ export class UserApi {
     } catch (error) {}
   }
 
-  async postUser(userData: object) {
+  async postUserAvatar(formFile: File) {
+    const formData = new FormData();
+    formData.append("formFile", formFile);
+
     try {
-      const res = await httpClient.post("/api/users", userData);
+      const res = await httpClient.post("/api/users/upload-avatar", formData);
+      console.log("res: ", res);
+      if (res) {
+        const userLogin: UserLogin = {
+          user: res.data.content,
+          token: getDataJsonStorage(USER_LOGIN).token,
+        };
+        setDataTextStorage(USER_LOGIN, userLogin.toString());
+        setDataJsonStorage(USER_LOGIN, userLogin);
+      }
       return res.data;
     } catch (error) {}
   }
 
-  async postUserAvatar(userData: object) {
-    try {
-      const res = await httpClient.post("/api/users/upload-avatar", userData);
-      return res.data;
-    } catch (error) {}
-  }
-
-  async getUserById(id: string) {
-    try {
-      const res = await httpClient.get(`/api/users/${id}`);
-      return res.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async updateUser(userData: object, id: string) {
+  async updateUserInformation(userData: object, id: string) {
     try {
       const res = await httpClient.put(`/api/users/${id}`, userData);
-      return res.data;
-    } catch (error) {}
-  }
+      if (res) {
+        const userLogin: UserLogin = {
+          user: res.data.content,
+          token: getDataJsonStorage(USER_LOGIN).token,
+        };
+        setDataTextStorage(USER_LOGIN, userLogin.toString());
+        setDataJsonStorage(USER_LOGIN, userLogin);
+      }
 
-  async deleteUser(id: string) {
-    try {
-      const res = await httpClient.delete(`/api/users?id=${id}`);
       return res.data;
     } catch (error) {}
   }

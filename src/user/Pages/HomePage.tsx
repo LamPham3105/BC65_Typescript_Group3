@@ -5,11 +5,8 @@ import SectionInformation from "../Components/Home/SectionInformation";
 import SectionIcon from "../Components/Home/SectionIcon";
 import SectionOurRoom from "../Components/Home/SectionOurRoom";
 import SectionNumber from "../Components/Home/SectionNumber";
-import SectionFeedback from "../Components/Home/SectionFeedback";
 
-type Props = {};
-
-const HomePage = (props: Props) => {
+const HomePage: React.FC = () => {
   return (
     <>
       <Carousel />

@@ -12,21 +12,11 @@ import useCustomFormik from "../../hook/useCustomFormik";
 import { userApi } from "../../service/user/userApi";
 import { useMutation } from "@tanstack/react-query";
 import * as Yup from "yup";
-import { useNavigate } from "react-router-dom";
+import { RegisterFormValues } from "../../Model/Model";
+import useRoute from "../../hook/useRoute";
 
-interface LoginFormValues {
-  name: string;
-  email: string;
-  password: string;
-  phone: string;
-  birthday: string;
-  gender: boolean;
-}
-
-type Props = {};
-
-const Register = (props: Props) => {
-  const navigate = useNavigate();
+const Register: React.FC = () => {
+  const { navigate } = useRoute();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -36,7 +26,9 @@ const Register = (props: Props) => {
 
   const mutation = useMutation({
     mutationFn: userApi.postRegisterUser,
-    onSuccess: (data) => {},
+    onSuccess: (data) => {
+      navigate(0);
+    },
     onError: (error) => {},
   });
 
@@ -64,7 +56,7 @@ const Register = (props: Props) => {
     gender: Yup.boolean().required("Please input gender!"),
   });
 
-  const formik = useCustomFormik<LoginFormValues>(
+  const formik = useCustomFormik<RegisterFormValues>(
     {
       name: "",
       email: "",
@@ -76,7 +68,6 @@ const Register = (props: Props) => {
     validationSchema,
     (values) => {
       mutation.mutate(values);
-      navigate(0);
     }
   );
 

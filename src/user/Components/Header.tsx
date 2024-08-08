@@ -1,13 +1,9 @@
 import React from "react";
 import Login from "./Login";
 import Register from "./Register";
-import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
 import UserMenu from "./UserMenu";
 
-type Props = {};
-
-const Header = (props: Props) => {
+const Header: React.FC = () => {
   return (
     <>
       <nav

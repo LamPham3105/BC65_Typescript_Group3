@@ -1,23 +1,15 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { Pagination } from "antd";
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { roomApi } from "../../../service/room/roomApi";
-import { locateApi } from "../../../service/locate/locateApi";
 import Loading from "../Antd/Loading";
 import {
   RoomData,
-  LocateData,
   LocateError,
-  BookingData,
   LocatePriceRangeProps,
 } from "../../../Model/Model";
 import "react-datepicker/dist/react-datepicker.css";
-import { RootState } from "../../../redux/store";
-import { useDispatch, useSelector } from "react-redux";
-import { editBooking } from "../../../redux/reducers/bookReducer";
 import useRoute from "../../../hook/useRoute";
-
-type Props = {};
 
 const RoomByLocate: React.FC<LocatePriceRangeProps> = ({
   priceRange,

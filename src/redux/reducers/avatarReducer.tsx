@@ -1,13 +1,11 @@
 // notificationSlice.ts
 import { createSlice } from "@reduxjs/toolkit";
 import { getDataJsonStorage, USER_LOGIN } from "../../util/utilMethod";
-
-interface AvatarReducerType {
-  avatar: string;
-}
+import { AvatarReducerType } from "../../Model/Model";
 
 const initialState: AvatarReducerType = {
-  avatar: getDataJsonStorage(USER_LOGIN).user.avatar,
+  avatar: getDataJsonStorage(USER_LOGIN)?.user.avatar,
+  userName: getDataJsonStorage(USER_LOGIN)?.user.name,
 };
 
 const avatarReducer = createSlice({
@@ -17,9 +15,12 @@ const avatarReducer = createSlice({
     updateAvatar: (state, action) => {
       state.avatar = action.payload;
     },
+    updateName: (state, action) => {
+      state.userName = action.payload;
+    },
   },
 });
 
-export const { updateAvatar } = avatarReducer.actions;
+export const { updateAvatar, updateName } = avatarReducer.actions;
 
 export default avatarReducer.reducer;

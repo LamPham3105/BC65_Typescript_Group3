@@ -31,35 +31,22 @@ export class RoomApi {
     } catch (error) {}
   }
 
+  async updateBookingRoom(bookingRoom: object, maDatPhong: string) {
+    try {
+      const res = await httpClient.put(
+        `/api/dat-phong/${maDatPhong}`,
+        bookingRoom
+      );
+      return res;
+    } catch (error) {}
+  }
+
   async getBookingRoomByUser(maNguoiDung: string) {
     try {
       const res = await httpClient.get(
         `/api/dat-phong/lay-theo-nguoi-dung/${maNguoiDung}`
       );
 
-      return res.data.content;
-    } catch (error) {}
-  }
-
-  // async getProductsPaging(params) {
-  //   let [queryKey, pageIndex] = params.queryKey;
-  //   let pageSize = 10;
-  //   const res = await httpClient.get(
-  //     `/api/Product/getpaging?pageIndex=${pageIndex}&pageSize=${pageSize}`
-  //   );
-
-  //   return res.data.content;
-  // }
-  async getBookingRoom() {
-    try {
-      const res = await httpClient.get("/api/dat-phong");
-      return res.data.content;
-    } catch (error) {}
-  }
-
-  async getBookingRoomByID(id: string) {
-    try {
-      const res = await httpClient.get(`/api/dat-phong/${id}`);
       return res.data.content;
     } catch (error) {}
   }

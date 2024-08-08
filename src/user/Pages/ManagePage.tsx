@@ -2,9 +2,7 @@ import React from "react";
 import ManageNav from "../Components/Manage/ManageNav";
 import UserProfilePage from "../Components/Manage/UserProfilePage";
 
-type Props = {};
-
-const ManagePage = (props: Props) => {
+const ManagePage: React.FC = () => {
   return (
     <>
       <ManageNav />

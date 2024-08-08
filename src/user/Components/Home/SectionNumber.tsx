@@ -1,14 +1,10 @@
-import React from "react";
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { userApi } from "../../../service/user/userApi";
 import { roomApi } from "../../../service/room/roomApi";
-
 import Loading from "../Antd/Loading";
 import { UserData, RoomData, LocateError } from "../../../Model/Model";
 
-type Props = {};
-
-const SectionNumber = (props: Props) => {
+const SectionNumber: React.FC = () => {
   const queryResultUser: UseQueryResult<UserData[], LocateError> = useQuery({
     queryKey: ["userListApi"],
     queryFn: userApi.getUser,

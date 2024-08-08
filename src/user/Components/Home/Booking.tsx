@@ -10,9 +10,7 @@ import { editBooking } from "../../../redux/reducers/bookReducer";
 import { RootState } from "../../../redux/store";
 import useRoute from "../../../hook/useRoute";
 
-type Props = {};
-
-const Booking = (props: Props) => {
+const Booking: React.FC = () => {
   const dispatch = useDispatch();
   const { navigate } = useRoute();
 

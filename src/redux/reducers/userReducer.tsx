@@ -1,18 +1,11 @@
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import {
-  setDataJsonStorage,
   USER_LOGIN,
   getDataJsonStorage,
-  setDataTextStorage,
   removeDataJsonStorage,
   removeDataTextStorage,
 } from "../../util/utilMethod";
-import { UserLogin } from "../../Model/Model";
-import { string } from "yup";
-
-interface UserReducerType {
-  userLogin: UserLogin | null;
-}
+import { UserReducerType } from "../../Model/Model";
 
 const initialState: UserReducerType = {
   userLogin: getDataJsonStorage(USER_LOGIN),

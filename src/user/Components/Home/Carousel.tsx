@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 
-const Carousel = () => {
+const Carousel: React.FC = () => {
   return (
     <section className="home-slider owl-carousel owl-theme">
       <div

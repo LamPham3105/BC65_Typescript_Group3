@@ -1,16 +1,12 @@
 // notificationSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { BookingData } from "../../Model/Model"; // Adjust this import based on where your Booking type is defined
+import { BookingData, BookingReducerType } from "../../Model/Model"; // Adjust this import based on where your Booking type is defined
 import {
   BOOK,
   getDataJsonStorage,
   removeDataJsonStorage,
   setDataJsonStorage,
 } from "../../util/utilMethod";
-
-interface BookingReducerType {
-  bookingData: BookingData | null;
-}
 
 const initialState: BookingReducerType = {
   bookingData: getDataJsonStorage(BOOK),

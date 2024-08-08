@@ -14,6 +14,8 @@ const BookingCard: React.FC<BookingCardProps> = ({
   totalComment,
   totalStars,
   roomData,
+  isBooking,
+  idBooking,
 }) => {
   const dispatch = useDispatch();
 
@@ -26,8 +28,15 @@ const BookingCard: React.FC<BookingCardProps> = ({
   const [days, setDays] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const mutation = useMutation({
+  const mutationAddBookingRoom = useMutation({
     mutationFn: roomApi.addBookingRoom,
+    onSuccess: () => {},
+    onError: () => {},
+  });
+
+  const mutationUpdateBookingRoom = useMutation({
+    mutationFn: (data: { bookingRoom: object; id: string }) =>
+      roomApi.updateBookingRoom(data.bookingRoom, data.id),
     onSuccess: () => {},
     onError: () => {},
   });
@@ -56,10 +65,21 @@ const BookingCard: React.FC<BookingCardProps> = ({
         maNguoiDung: userLogin?.user.id,
       };
 
-      mutation.mutate(bookingRoom);
+      if (!isBooking) {
+        mutationAddBookingRoom.mutate(bookingRoom);
+      } else {
+        mutationUpdateBookingRoom.mutate({
+          bookingRoom,
+          id: idBooking,
+        });
+      }
       setIsModalOpen(false);
 
-      dispatch(showNotification("Booking success"));
+      dispatch(
+        showNotification(
+          !isBooking ? "Booking success" : "Update booking success"
+        )
+      );
     }
   };
 

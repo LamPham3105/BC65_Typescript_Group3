@@ -4,16 +4,16 @@ import { RootState } from "../../redux/store";
 import { DispatchType } from "../../redux/store";
 import { useDispatch } from "react-redux";
 import { logout } from "../../redux/reducers/userReducer";
-import { useNavigate } from "react-router-dom";
+import useRoute from "../../hook/useRoute";
 
 const UserMenu: React.FC = () => {
-  const navigate = useNavigate();
+  const { navigate } = useRoute();
 
   const dispatch: DispatchType = useDispatch();
-
   const { userLogin } = useSelector((state: RootState) => state.userReducer);
 
   const [showMenu, setShowMenu] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<"login" | "register">("login");
 
   const handleMenuToggle = () => {
     setShowMenu(!showMenu);
@@ -21,11 +21,21 @@ const UserMenu: React.FC = () => {
 
   const handleLogOut = () => {
     dispatch(logout());
-    navigate(0);
+    navigate("/");
   };
 
   const handleManage = () => {
     navigate("/info-user");
+  };
+
+  const handleTabSwitch = (tab: "login" | "register") => {
+    setActiveTab(tab);
+    setTimeout(() => {
+      const targetTab = document.querySelector(
+        `#${tab}-tab`
+      ) as HTMLAnchorElement;
+      targetTab?.click();
+    }, 0);
   };
 
   const renderPopup = () => {
@@ -48,6 +58,7 @@ const UserMenu: React.FC = () => {
             href="#"
             data-toggle="modal"
             data-target="#authModal"
+            onClick={() => handleTabSwitch("login")}
           >
             Log in
           </a>
@@ -56,6 +67,7 @@ const UserMenu: React.FC = () => {
             href="#"
             data-toggle="modal"
             data-target="#authModal"
+            onClick={() => handleTabSwitch("register")}
           >
             Register
           </a>
@@ -68,23 +80,15 @@ const UserMenu: React.FC = () => {
     if (userLogin) {
       return (
         <div
-          className="dropdown-toggle"
+          className="dropdown-toggle nav-link"
           id="dropdownMenuButton"
           aria-haspopup="true"
           aria-expanded={showMenu}
           onClick={handleMenuToggle}
           style={{ cursor: "pointer" }}
         >
-          <i
-            className="fa fa-user"
-            aria-hidden="true"
-            style={{ color: "white" }}
-          >
-            <span
-              style={{ paddingLeft: "10px", color: "white", fontWeight: "400" }}
-            >
-              {userLogin.user?.name}
-            </span>
+          <i className="fa fa-user" aria-hidden="true">
+            <span style={{ paddingLeft: "10px" }}>{userLogin.user?.name}</span>
           </i>
         </div>
       );

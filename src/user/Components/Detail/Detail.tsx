@@ -9,6 +9,7 @@ import {
   LocateError,
   CityData,
   CommentData,
+  UserBookingRoomData,
 } from "../../../Model/Model";
 import Amenities from "./Amenities";
 import BookingCard from "./BookingCard";
@@ -18,8 +19,6 @@ import { commentApi } from "../../../service/comment/commentApi";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import ReviewComponent from "./Comment/ReviewComponent";
-
-type Props = {};
 
 const cities: CityData[] = [
   { name: "Hà Nội", latitude: 21.0285, longitude: 105.8542 },
@@ -105,10 +104,22 @@ const Detail: React.FC = () => {
     refetchOnWindowFocus: true,
   });
 
+  const queryResultBookingRoomByUser: UseQueryResult<
+    UserBookingRoomData[],
+    LocateError
+  > = useQuery({
+    queryKey: ["getBookingRoomByUser", userLogin?.user.id || ""],
+    queryFn: () =>
+      roomApi.getBookingRoomByUser(userLogin?.user.id.toString() || ""),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+  });
+
   if (
     queryResultRoomByID.isLoading ||
     queryResultLocate.isLoading ||
-    queryResultCommentByMaPhong.isLoading
+    queryResultCommentByMaPhong.isLoading ||
+    queryResultBookingRoomByUser.isLoading
   ) {
     return <Loading />;
   }
@@ -116,7 +127,8 @@ const Detail: React.FC = () => {
   if (
     queryResultRoomByID.error &&
     queryResultLocate.isError &&
-    queryResultCommentByMaPhong.isError
+    queryResultCommentByMaPhong.isError &&
+    queryResultBookingRoomByUser.isError
   ) {
     return (
       <div>
@@ -157,6 +169,15 @@ const Detail: React.FC = () => {
   };
 
   const totalStars = getStarsAvg();
+
+  const isBooking =
+    queryResultBookingRoomByUser?.data?.findIndex(
+      (a) => a.maPhong.toString() === id
+    ) != -1;
+
+  const idBooking = queryResultBookingRoomByUser?.data?.find(
+    (a) => a.maPhong.toString() === id
+  )?.id;
 
   const renderComment = () => {
     if (userLogin) {
@@ -253,6 +274,8 @@ const Detail: React.FC = () => {
               totalComment={totalComment}
               totalStars={totalStars}
               roomData={queryResultRoomByID.data || defaultRoomData}
+              isBooking={isBooking}
+              idBooking={idBooking?.toString() || ""}
             />
           </div>
         </div>

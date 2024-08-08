@@ -9,21 +9,15 @@ import { userApi } from "../../service/user/userApi";
 import useCustomFormik from "../../hook/useCustomFormik";
 import { useMutation } from "@tanstack/react-query";
 import * as Yup from "yup";
-import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { showNotification } from "../../redux/reducers/notificationReducer";
+import { LoginFormValues } from "../../Model/Model";
+import useRoute from "../../hook/useRoute";
 
-interface LoginFormValues {
-  email: string;
-  password: string;
-}
-
-type Props = {};
-
-const Login = (props: Props) => {
+const Login: React.FC = () => {
   const dispatch = useDispatch();
 
-  const navigate = useNavigate();
+  const { navigate } = useRoute();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -33,7 +27,19 @@ const Login = (props: Props) => {
 
   const mutation = useMutation({
     mutationFn: userApi.postLoginUser,
-    onSuccess: (data) => {},
+    onSuccess: (data) => {
+      let dataUserLogin = getDataJsonStorage(USER_LOGIN);
+      if (dataUserLogin) {
+        if (data.content.user.role === "USER") {
+          navigate(0);
+        } else if (data.content.user.role === "ADMIN") {
+          navigate("/admin/dashboard-admin");
+          window.location.reload();
+        }
+      } else {
+        dispatch(showNotification("Incorrect password or username"));
+      }
+    },
     onError: (error) => {},
   });
 
@@ -57,12 +63,6 @@ const Login = (props: Props) => {
     validationSchema,
     (values) => {
       mutation.mutate(values);
-      let data = getDataJsonStorage(USER_LOGIN);
-      if (data) {
-        navigate(0);
-      } else {
-        dispatch(showNotification("Incorrect password or username"));
-      }
     }
   );
 

@@ -1,8 +1,6 @@
 import React from "react";
 
-type Props = {};
-
-const SectionInformation = (props: Props) => {
+const SectionInformation: React.FC = () => {
   return (
     <section className="ftco-section ftc-no-pb ftc-no-pt">
       <div className="container">

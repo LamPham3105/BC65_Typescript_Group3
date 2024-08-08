@@ -1,10 +1,6 @@
 import React from "react";
 import "../../../../css/Comment.css";
-import { CommentData } from "../../../../Model/Model";
-
-interface CommentsProps {
-  comments: CommentData[];
-}
+import { CommentsProps } from "../../../../Model/Model";
 
 const Comments: React.FC<CommentsProps> = ({ comments }) => {
   const sortedComments = comments?.sort((a, b) => b.id - a.id);

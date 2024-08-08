@@ -7,8 +7,6 @@ import { RoomData, LocateError, PriceRangeProps } from "../../../Model/Model";
 import "react-datepicker/dist/react-datepicker.css";
 import useRoute from "../../../hook/useRoute";
 
-type Props = {};
-
 const RoomAll: React.FC<PriceRangeProps> = ({ priceRange }) => {
   const { navigate } = useRoute();
 

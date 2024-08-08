@@ -21,9 +21,9 @@ const DetailNav: React.FC = () => {
                 <span className="mr-2">
                   <a href="rooms.html">Room</a>
                 </span>{" "}
-                <span>Room Single</span>
+                <span>Room Detail</span>
               </p>
-              <h1 className="mb-4 bread">Room Single</h1>
+              <h1 className="mb-4 bread">Room Detail</h1>
             </div>
           </div>
         </div>
