@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from "react";
 import "../../../css/BookingCard.css";
-import {
-  BookingRoomData,
-  BookingCardProps,
-  UserBookingRoomData,
-  LocateError,
-} from "../../../Model/Model";
+import { BookingRoomData, BookingCardProps } from "../../../Model/Model";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import { convertDateAndTime } from "../../../util/utilMethod";
 import { showNotification } from "../../../redux/reducers/notificationReducer";
 import { Modal } from "antd";
-import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { roomApi } from "../../../service/room/roomApi";
 
 const BookingCard: React.FC<BookingCardProps> = ({
@@ -19,8 +14,6 @@ const BookingCard: React.FC<BookingCardProps> = ({
   totalComment,
   totalStars,
   roomData,
-  isBooking,
-  idBooking,
 }) => {
   const dispatch = useDispatch();
 
@@ -33,15 +26,8 @@ const BookingCard: React.FC<BookingCardProps> = ({
   const [days, setDays] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const mutationAddBookingRoom = useMutation({
+  const mutation = useMutation({
     mutationFn: roomApi.addBookingRoom,
-    onSuccess: () => {},
-    onError: () => {},
-  });
-
-  const mutationUpdateBookingRoom = useMutation({
-    mutationFn: (data: { bookingRoom: object; id: string }) =>
-      roomApi.updateBookingRoom(data.bookingRoom, data.id),
     onSuccess: () => {},
     onError: () => {},
   });
@@ -70,21 +56,10 @@ const BookingCard: React.FC<BookingCardProps> = ({
         maNguoiDung: userLogin?.user.id,
       };
 
-      if (!isBooking) {
-        mutationAddBookingRoom.mutate(bookingRoom);
-      } else {
-        mutationUpdateBookingRoom.mutate({
-          bookingRoom,
-          id: idBooking,
-        });
-      }
+      mutation.mutate(bookingRoom);
       setIsModalOpen(false);
 
-      dispatch(
-        showNotification(
-          !isBooking ? "Booking success" : "Update booking success"
-        )
-      );
+      dispatch(showNotification("Booking success"));
     }
   };
 

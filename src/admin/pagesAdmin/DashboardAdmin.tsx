@@ -1,6 +1,6 @@
 import React from "react";
-import SearchDashboard from "./SearchDashboard";
-import ContentDashboard from "./ContentDashboard";
+// import SearchDashboard from "./SearchDashboard";
+// import ContentDashboard from "./ContentDashboard";
 
 const DashboardAdmin = () => {
   return (

@@ -1,23 +1,16 @@
 import React from "react";
 import {
-  BookingData,
   LocateData,
   LocateError,
   RoomData,
   RoomProps,
 } from "../../../Model/Model";
 import "../../../css/UserProfilePage.css";
-import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query";
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { roomApi } from "../../../service/room/roomApi";
 import Loading from "../Antd/Loading";
-import useRoute from "../../../hook/useRoute";
-import { useDispatch } from "react-redux";
-import { editBooking } from "../../../redux/reducers/bookReducer";
 
 const RentedRoom: React.FC<RoomProps> = ({ userBookingRoomData }) => {
-  const { navigate } = useRoute();
-  const dispatch = useDispatch();
-
   const queryResultRoomByID: UseQueryResult<RoomData, LocateError> = useQuery({
     queryKey: ["roomByIDApi", userBookingRoomData?.maPhong || ""],
     queryFn: () =>
@@ -34,18 +27,6 @@ const RentedRoom: React.FC<RoomProps> = ({ userBookingRoomData }) => {
     return <div>Error: {queryResultRoomByID.error.message}</div>;
   }
 
-  const handleRoomByID = () => {
-    const booking: BookingData = {
-      dateCheckIn: userBookingRoomData.ngayDen,
-      dateCheckOut: userBookingRoomData.ngayDi,
-      idLocate: queryResultRoomByID.data?.maViTri || 0,
-      totalGuest: userBookingRoomData.soLuongKhach,
-    };
-    dispatch(editBooking(booking));
-
-    navigate(`/detail/${queryResultRoomByID.data?.id}`);
-  };
-
   return (
     <div className="room-card card mb-3">
       <div className="row no-gutters">
@@ -55,7 +36,6 @@ const RentedRoom: React.FC<RoomProps> = ({ userBookingRoomData }) => {
             className="card-img"
             alt={queryResultRoomByID.data?.tenPhong}
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            onClick={handleRoomByID}
           />
         </div>
         <div className="col-md-8">

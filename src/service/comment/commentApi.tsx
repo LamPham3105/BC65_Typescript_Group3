@@ -2,7 +2,6 @@ import { httpClient } from "../../util/util";
 
 export class CommentApi {
   async getCommentByMaPhong(maPhong: string) {
-    if (maPhong === "") return [];
     try {
       const res = await httpClient.get(
         `/api/binh-luan/lay-binh-luan-theo-phong/${maPhong}`
@@ -18,6 +17,13 @@ export class CommentApi {
     } catch (error) {
       console.log("error: ", error);
     }
+  }
+
+  async getComment() {
+    try {
+      const res = await httpClient.get("/api/binh-luan");
+      return res.data.content;
+    } catch (error) {}
   }
 }
 

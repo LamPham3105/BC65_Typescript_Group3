@@ -2,7 +2,6 @@ import { configureStore } from "@reduxjs/toolkit";
 import userReducer from "./reducers/userReducer";
 import notificationReducer from "./reducers/notificationReducer";
 import bookReducer from "./reducers/bookReducer";
-import avatarReducer from "./reducers/avatarReducer";
 
 export const store = configureStore({
   reducer: {
@@ -10,7 +9,6 @@ export const store = configureStore({
     userReducer,
     notificationReducer,
     bookReducer,
-    avatarReducer,
   },
 });
 
