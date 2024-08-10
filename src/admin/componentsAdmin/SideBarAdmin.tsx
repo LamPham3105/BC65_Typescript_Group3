@@ -1,14 +1,20 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import useRoute from "../../hook/useRoute";
 
 type Props = {};
 
 const SideBarAdmin = (props: Props) => {
+  const { navigate } = useRoute();
+
   return (
     <div className="sidebar" data-background-color="dark">
       <div className="sidebar-logo">
         {/* Logo Header */}
         <div className="logo-header" data-background-color="dark">
+          <a href="index.html" className="logo">
+            Manage
+          </a>
           <div className="nav-toggle">
             <button className="btn btn-toggle toggle-sidebar">
               <i className="gg-menu-right" />
@@ -26,148 +32,60 @@ const SideBarAdmin = (props: Props) => {
       <div className="sidebar-wrapper scrollbar scrollbar-inner">
         <div className="sidebar-content">
           <ul className="nav nav-secondary">
-            <li className="nav-item active">
+            <li className="nav-item">
               <a
-                href="/admin/dashboard-admin"
-                className="collapsed"
-                aria-expanded="false"
+                data-bs-toggle="collapse"
+                onClick={() => {
+                  navigate("/admin/table-user");
+                }}
               >
-                <i className="fas fa-home" />
-                <p>Dashboard</p>
-                <span className="caret" />
+                <i className="fas fa-layer-group" />
+                <p>Manage User</p>
               </a>
             </li>
-            <li className="nav-section">
-              <span className="sidebar-mini-icon">
-                <i className="fa fa-ellipsis-h" />
-              </span>
-              <h4 className="text-section">Components</h4>
+            <li className="nav-item">
+              <a
+                data-bs-toggle="collapse"
+                onClick={() => {
+                  navigate("/admin/table-location");
+                }}
+              >
+                <i className="fas fa-th-list" />
+                <p>Manage Locate</p>
+              </a>
             </li>
             <li className="nav-item">
-              <a data-bs-toggle="collapse" href="#forms">
+              <a
+                data-bs-toggle="collapse"
+                onClick={() => {
+                  navigate("/admin/table-room");
+                }}
+              >
                 <i className="fas fa-pen-square" />
-                <p>Forms</p>
-                <span className="caret" />
+                <p>Manage Room</p>
               </a>
-              <div className="collapse" id="forms">
-                <ul className="nav nav-collapse">
-                  <li>
-                    <a href="/admin/form">
-                      <span className="sub-item">Basic Form</span>
-                    </a>
-                  </li>
-                </ul>
-              </div>
             </li>
             <li className="nav-item">
-              <a data-bs-toggle="collapse" href="#tables">
+              <a
+                data-bs-toggle="collapse"
+                onClick={() => {
+                  navigate("/admin/table-booking-room");
+                }}
+              >
                 <i className="fas fa-table" />
-                <p>Tables</p>
-                <span className="caret" />
-              </a>
-              <div className="collapse" id="tables">
-                <ul className="nav nav-collapse">
-                  <li>
-                    <a href="/admin/table">
-                      <span className="sub-item">User</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/admin/table-room">
-                      <span className="sub-item">Room</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/admin/table-location">
-                      <span className="sub-item">Location</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/admin/table-comment">
-                      <span className="sub-item">Comment</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/admin/table-booking-room">
-                      <span className="sub-item">Booking Room</span>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </li>
-            <li className="nav-item">
-              <a data-bs-toggle="collapse" href="#maps">
-                <i className="fas fa-map-marker-alt" />
-                <p>Maps</p>
-                <span className="caret" />
-              </a>
-              <div className="collapse" id="maps">
-                <ul className="nav nav-collapse">
-                  <li>
-                    <a href="/admin/map">
-                      <span className="sub-item">Google Maps</span>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </li>
-            <li className="nav-item">
-              <a href="/admin/manage-admin">
-                <i className="fas fa-desktop" />
-                <p>Widgets</p>
-                <span className="badge badge-success">4</span>
+                <p>Manage Booking</p>
               </a>
             </li>
             <li className="nav-item">
-              <a data-bs-toggle="collapse" href="#submenu">
-                <i className="fas fa-bars" />
-                <p>Menu Levels</p>
-                <span className="caret" />
+              <a
+                data-bs-toggle="collapse"
+                onClick={() => {
+                  navigate("/admin/table-comment");
+                }}
+              >
+                <i className="fas fa-table" />
+                <p>Manage Comment</p>
               </a>
-              <div className="collapse" id="submenu">
-                <ul className="nav nav-collapse">
-                  <li>
-                    <a data-bs-toggle="collapse" href="#subnav1">
-                      <span className="sub-item">Level 1</span>
-                      <span className="caret" />
-                    </a>
-                    <div className="collapse" id="subnav1">
-                      <ul className="nav nav-collapse subnav">
-                        <li>
-                          <a href="#">
-                            <span className="sub-item">Level 2</span>
-                          </a>
-                        </li>
-                        <li>
-                          <a href="#">
-                            <span className="sub-item">Level 2</span>
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-                  </li>
-                  <li>
-                    <a data-bs-toggle="collapse" href="#subnav2">
-                      <span className="sub-item">Level 1</span>
-                      <span className="caret" />
-                    </a>
-                    <div className="collapse" id="subnav2">
-                      <ul className="nav nav-collapse subnav">
-                        <li>
-                          <a href="#">
-                            <span className="sub-item">Level 2</span>
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-                  </li>
-                  <li>
-                    <a href="#">
-                      <span className="sub-item">Level 1</span>
-                    </a>
-                  </li>
-                </ul>
-              </div>
             </li>
           </ul>
         </div>

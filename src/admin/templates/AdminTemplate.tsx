@@ -4,12 +4,21 @@ import { Outlet } from "react-router-dom";
 import HeaderHomeAdmin from "../componentsAdmin/HeaderHomeAdmin";
 import FooterHomeAdmin from "../componentsAdmin/FooterHomeAdmin";
 import SideBarAdmin from "../componentsAdmin/SideBarAdmin";
-import DashboardAdmin from "../pagesAdmin/DashboardAdmin";
-import AvatarPage from "../pagesAdmin/base/AvatarPage";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
+import useRoute from "../../hook/useRoute";
 
 type Props = {};
 
 const AdminTemplate = (props: Props) => {
+  const { navigate } = useRoute();
+
+  const { userLogin } = useSelector((state: RootState) => state.userReducer);
+
+  if (userLogin?.user.role !== "ADMIN") {
+    navigate("/");
+  }
+
   return (
     <div className="wrapper">
       <SideBarAdmin />

@@ -19,6 +19,13 @@ export class CommentApi {
       console.log("error: ", error);
     }
   }
+
+  async getComment() {
+    try {
+      const res = await httpClient.get("/api/binh-luan");
+      return res.data.content;
+    } catch (error) {}
+  }
 }
 
 export const commentApi = new CommentApi();

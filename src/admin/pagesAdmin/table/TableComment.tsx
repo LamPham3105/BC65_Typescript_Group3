@@ -1,80 +1,57 @@
 import React, { useEffect, useState } from "react";
+import { Pagination } from "antd";
 import { commentApi } from "../../../service/comment/commentApi";
+import { Comment } from "../../../Model/Manage";
 
-type Comment = {
-  id: number;
-  maPhong: number;
-  maNguoiBinhLuan: number;
-  ngayBinhLuan: string;
-  noiDung: string;
-  saoBinhLuan: number;
-};
-
-const TableComment = () => {
+const TableComment: React.FC = () => {
   const [comments, setComments] = useState<Comment[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [total, setTotal] = useState<number>(0);
+
+  const pageSize = 6;
 
   useEffect(() => {
     const fetchComments = async () => {
       try {
         const data = await commentApi.getComment();
-        setComments(data);
+        setTotal(data.length);
+        const paginatedData = data.slice(
+          (currentPage - 1) * pageSize,
+          currentPage * pageSize
+        );
+        setComments(paginatedData);
       } catch (error) {
         console.error("Failed to fetch comments:", error);
       }
     };
 
     fetchComments();
-  }, []);
+  }, [currentPage]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   return (
     <div className="container">
       <div className="page-inner">
         <div className="page-header">
-          <h3 className="fw-bold mb-3">Tables</h3>
-          <ul className="breadcrumbs mb-3">
-            <li className="nav-home">
-              <a href="#">
-                <i className="icon-home" />
-              </a>
-            </li>
-            <li className="separator">
-              <i className="icon-arrow-right" />
-            </li>
-            <li className="nav-item">
-              <a href="#">Tables</a>
-            </li>
-            <li className="separator">
-              <i className="icon-arrow-right" />
-            </li>
-            <li className="nav-item">
-              <a href="#">Basic Tables</a>
-            </li>
-          </ul>
+          <h3 className="fw-bold mb-3">Comments</h3>
         </div>
 
         <div className="row">
           <div className="card">
-            <div className="card-header">
-              <div className="card-title">Responsive Table</div>
-            </div>
             <div className="card-body">
-              <div className="card-sub">
-                Create responsive tables by wrapping any table with
-                <code className="highlighter-rouge">.table-responsive</code>
-                <code className="highlighter-rouge">DIV</code> to make them
-                scroll horizontally on small devices
-              </div>
               <div className="table-responsive">
                 <table className="table table-bordered">
                   <thead>
                     <tr>
                       <th>Id</th>
-                      <th>Room code</th>
-                      <th>Customer's code</th>
-                      <th>Date time</th>
+                      <th>Room Code</th>
+                      <th>Customer's Code</th>
+                      <th>Date Time</th>
                       <th>Feedback</th>
                       <th>Evaluate</th>
-                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -93,21 +70,24 @@ const TableComment = () => {
                             maxWidth: "150px",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
                           }}
                         >
                           {comment.noiDung}
                         </td>
                         <td>{comment.saoBinhLuan}</td>
-                        <td>
-                          <button className="btn btn-primary btn-sm me-2">
-                            Detail
-                          </button>
-                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
+              <Pagination
+                align="center"
+                current={currentPage}
+                total={total}
+                pageSize={pageSize}
+                onChange={handlePageChange}
+              />
             </div>
           </div>
         </div>

@@ -26,10 +26,46 @@ export class UserApi {
     } catch (error) {}
   }
 
-  async getUser() {
+  async getUser(pageIndex = 1, pageSize = 10, keyword = "") {
     try {
-      const res = await httpClient.get("/api/users");
+      const res = await httpClient.get("/api/users/phan-trang-tim-kiem", {
+        params: {
+          pageIndex,
+          pageSize,
+          keyword,
+        },
+      });
       return res.data.content;
+    } catch (error) {}
+  }
+
+  async postUser(userData: object) {
+    try {
+      const res = await httpClient.post("/api/users", userData);
+      return res.data;
+    } catch (error) {}
+  }
+
+  async getUserById(id: string) {
+    try {
+      const res = await httpClient.get(`/api/users/${id}`);
+      return res.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateUser(userData: object, id: string) {
+    try {
+      const res = await httpClient.put(`/api/users/${id}`, userData);
+      return res.data;
+    } catch (error) {}
+  }
+
+  async deleteUser(id: string) {
+    try {
+      const res = await httpClient.delete(`/api/users?id=${id}`);
+      return res.data;
     } catch (error) {}
   }
 
@@ -39,7 +75,6 @@ export class UserApi {
 
     try {
       const res = await httpClient.post("/api/users/upload-avatar", formData);
-      console.log("res: ", res);
       if (res) {
         const userLogin: UserLogin = {
           user: res.data.content,
