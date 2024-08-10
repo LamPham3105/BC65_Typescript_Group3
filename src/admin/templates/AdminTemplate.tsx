@@ -8,9 +8,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import useRoute from "../../hook/useRoute";
 
-type Props = {};
-
-const AdminTemplate = (props: Props) => {
+const AdminTemplate: React.FC = () => {
   const { navigate } = useRoute();
 
   const { userLogin } = useSelector((state: RootState) => state.userReducer);

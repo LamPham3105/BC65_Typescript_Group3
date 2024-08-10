@@ -1,10 +1,7 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
 import useRoute from "../../hook/useRoute";
 
-type Props = {};
-
-const SideBarAdmin = (props: Props) => {
+const SideBarAdmin: React.FC = () => {
   const { navigate } = useRoute();
 
   return (

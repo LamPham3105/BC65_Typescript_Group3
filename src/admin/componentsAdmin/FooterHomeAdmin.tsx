@@ -1,8 +1,6 @@
 import React from "react";
 
-type Props = {};
-
-const FooterHomeAdmin = (props: Props) => {
+const FooterHomeAdmin: React.FC = () => {
   return (
     <footer className="footer">
       <div className="container-fluid d-flex justify-content-between">
