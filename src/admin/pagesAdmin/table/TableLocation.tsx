@@ -6,12 +6,16 @@ import { useMutation } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
 import { DispatchType } from "../../../redux/store";
 import { showNotification } from "../../../redux/reducers/notificationReducer";
+import {
+  numberRegExp,
+  validateNoSpecialChars,
+  wordRegExp,
+} from "../../../util/utilMethod";
 
 const TableLocation: React.FC = () => {
   const dispatch: DispatchType = useDispatch();
 
   const [file, setFile] = useState<File | null>(null);
-
   const [locations, setLocations] = useState<Location[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [total, setTotal] = useState<number>(0);
@@ -23,6 +27,7 @@ const TableLocation: React.FC = () => {
     quocGia: "",
     hinhAnh: "",
   });
+  const [imageError, setImageError] = useState<string | null>(null);
 
   const pageSize = 6;
 
@@ -130,18 +135,28 @@ const TableLocation: React.FC = () => {
     }));
   };
 
+  const validateImageFile = (file: File): boolean => {
+    const validExtensions = ["image/jpeg", "image/png"];
+    return validExtensions.includes(file.type);
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCurrentLocation((prevLocation) => ({
-          ...prevLocation,
-          hinhAnh: reader.result as string,
-        }));
-      };
-      reader.readAsDataURL(file);
-      setFile(file);
+      if (validateImageFile(file)) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setCurrentLocation((prevLocation) => ({
+            ...prevLocation,
+            hinhAnh: reader.result as string,
+          }));
+        };
+        reader.readAsDataURL(file);
+        setFile(file);
+        setImageError(null); // Reset error if file is valid
+      } else {
+        setImageError("Only .jpg and .png files are allowed."); // Set error if file is invalid
+      }
     }
   };
 
@@ -249,36 +264,81 @@ const TableLocation: React.FC = () => {
         ]}
       >
         <Form layout="vertical">
-          <Form.Item label="Location Name">
+          <Form.Item
+            label="Location Name"
+            rules={[
+              {
+                required: true,
+                message: "Location name is required",
+              },
+              {
+                validator: (_, value) =>
+                  validateNoSpecialChars(value)
+                    ? Promise.resolve()
+                    : Promise.reject(
+                        "Location name must not contain special characters"
+                      ),
+              },
+            ]}
+          >
             <Input
               value={currentLocation.tenViTri}
               onChange={(e) => handleInputChange(e, "tenViTri")}
             />
           </Form.Item>
-          <Form.Item label="City">
+          <Form.Item
+            label="City"
+            rules={[
+              {
+                required: true,
+                message: "City is required",
+              },
+              {
+                pattern: wordRegExp,
+                message: "City name must not contain special characters",
+              },
+            ]}
+          >
             <Input
               value={currentLocation.tinhThanh}
               onChange={(e) => handleInputChange(e, "tinhThanh")}
             />
           </Form.Item>
-          <Form.Item label="Country">
+          <Form.Item
+            label="Country"
+            rules={[
+              {
+                required: true,
+                message: "Country is required",
+              },
+              {
+                pattern: wordRegExp,
+                message: "Country name must not contain special characters",
+              },
+            ]}
+          >
             <Input
               value={currentLocation.quocGia}
               onChange={(e) => handleInputChange(e, "quocGia")}
             />
           </Form.Item>
-          <Form.Item label="Image URL">
-            <Input
-              type="file"
-              className="form-control mb-3"
-              onChange={handleFileChange}
-            />
+          <Form.Item label="Image">
+            <Input type="file" accept=".jpg,.png" onChange={handleFileChange} />
+            {imageError && (
+              <div style={{ color: "red", marginTop: "10px" }}>
+                {imageError}
+              </div>
+            )}
             {currentLocation.hinhAnh && (
-              <div className="image-preview">
+              <div style={{ marginTop: "10px" }}>
                 <img
                   src={currentLocation.hinhAnh}
                   alt="Preview"
-                  style={{ width: "100%", marginTop: "10px" }}
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    objectFit: "cover",
+                  }}
                 />
               </div>
             )}

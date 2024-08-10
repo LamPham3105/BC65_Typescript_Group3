@@ -1,19 +1,16 @@
+import React, { useState } from "react";
 import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query";
 import { userApi } from "../../../service/user/userApi";
 import { UserData } from "../../../Model/Manage";
-import { useState } from "react";
 import { Form, Input, Modal, Pagination, Select, notification } from "antd";
+import {
+  wordRegExp,
+  emailRegExp,
+  phoneRegExp,
+  birthRegExp,
+  validatePassword,
+} from "../../../util/utilMethod";
 import Loading from "../../../user/Components/Antd/Loading";
-
-type UserQueryResult = {
-  data: UserData[];
-  keywords: string | null;
-  pageIndex: number;
-  pageSize: number;
-  totalRow: number;
-};
-
-type UserQueryError = Error;
 
 const TableUser: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -30,44 +27,50 @@ const TableUser: React.FC = () => {
     avatar: "",
   });
 
-  const [form] = Form.useForm(); // Initialize form instance
-
+  const [form] = Form.useForm();
   const pageSize = 6;
+  type UserQueryError = Error;
 
-  const queryResult: UseQueryResult<UserQueryResult, UserQueryError> = useQuery(
+  const queryResult: UseQueryResult<
     {
-      queryKey: ["listUsers", currentPage, pageSize],
-      queryFn: async () => {
-        try {
-          const response = await userApi.getUser(currentPage, pageSize);
-          if (response && response.data) {
-            return {
-              data: response.data,
-              keywords: response.keywords,
-              pageIndex: response.pageIndex,
-              pageSize: response.pageSize,
-              totalRow: response.totalRow,
-            };
-          } else {
-            throw new Error("Unexpected response structure");
-          }
-        } catch (error) {
-          console.error("Error fetching users:", error);
+      data: UserData[];
+      keywords: string | null;
+      pageIndex: number;
+      pageSize: number;
+      totalRow: number;
+    },
+    UserQueryError
+  > = useQuery({
+    queryKey: ["listUsers", currentPage, pageSize],
+    queryFn: async () => {
+      try {
+        const response = await userApi.getUser(currentPage, pageSize);
+        if (response && response.data) {
           return {
-            data: [], // Return an empty array if there is an error
-            keywords: null,
-            pageIndex: 0,
-            pageSize: 0,
-            totalRow: 0,
+            data: response.data,
+            keywords: response.keywords,
+            pageIndex: response.pageIndex,
+            pageSize: response.pageSize,
+            totalRow: response.totalRow,
           };
+        } else {
+          throw new Error("Unexpected response structure");
         }
-      },
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      refetchOnWindowFocus: true,
-    }
-  );
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        return {
+          data: [], // Return an empty array if there is an error
+          keywords: null,
+          pageIndex: 0,
+          pageSize: 0,
+          totalRow: 0,
+        };
+      }
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: true,
+  });
 
-  // Mutation for adding or updating a user
   const mutation = useMutation({
     mutationFn: (user: UserData) => {
       if (user.id === 0) {
@@ -253,6 +256,7 @@ const TableUser: React.FC = () => {
             rules={[
               { required: true, message: "Please input the name!" },
               { max: 50, message: "Name cannot be longer than 50 characters!" },
+              { pattern: wordRegExp, message: "Invalid name format!" },
             ]}
           >
             <Input
@@ -265,6 +269,7 @@ const TableUser: React.FC = () => {
             rules={[
               { required: true, message: "Please input a valid email!" },
               { type: "email", message: "The input is not a valid email!" },
+              { pattern: emailRegExp, message: "Invalid email format!" },
             ]}
           >
             <Input
@@ -279,6 +284,7 @@ const TableUser: React.FC = () => {
                 max: 15,
                 message: "Phone number cannot be longer than 15 characters!",
               },
+              { pattern: phoneRegExp, message: "Invalid phone number format!" },
             ]}
           >
             <Input
@@ -288,7 +294,11 @@ const TableUser: React.FC = () => {
           </Form.Item>
           <Form.Item
             label="Birthday"
-            rules={[{ type: "date", message: "Please input a valid date!" }]}
+            name="birthday"
+            rules={[
+              { type: "date", message: "Please input a valid date!" },
+              { pattern: birthRegExp, message: "Invalid birth date format!" },
+            ]}
           >
             <Input
               type="date"
@@ -309,6 +319,28 @@ const TableUser: React.FC = () => {
             </Select>
           </Form.Item>
           <Form.Item
+            label="Password"
+            name="password"
+            rules={[
+              { required: true, message: "Please input the password!" },
+              {
+                validator: (_, value) =>
+                  validatePassword(value)
+                    ? Promise.resolve()
+                    : Promise.reject(
+                        new Error(
+                          "Password must contain 6 to 12 characters, including at least one letter and one number!"
+                        )
+                      ),
+              },
+            ]}
+          >
+            <Input.Password
+              value={currentUser.password}
+              onChange={(e) => handleInputChange(e, "password")}
+            />
+          </Form.Item>
+          <Form.Item
             label="Role"
             rules={[{ required: true, message: "Please select the role!" }]}
           >
@@ -321,27 +353,11 @@ const TableUser: React.FC = () => {
                 }))
               }
             >
-              <Select.Option value="ADMIN">Admin</Select.Option>
-              <Select.Option value="USER">User</Select.Option>
+              <Select.Option value="Admin">Admin</Select.Option>
+              <Select.Option value="User">User</Select.Option>
             </Select>
           </Form.Item>
-          <Form.Item
-            label="Password"
-            rules={[
-              { required: true, message: "Please input the password!" },
-              {
-                min: 6,
-                message: "Password must be at least 6 characters long!",
-              },
-            ]}
-          >
-            <Input
-              type="password"
-              value={currentUser.password}
-              onChange={(e) => handleInputChange(e, "password")}
-            />
-          </Form.Item>
-          <Form.Item label="Avatar URL">
+          <Form.Item label="Avatar URL" name="avatar">
             {currentUser.avatar && (
               <div className="image-preview">
                 <img
