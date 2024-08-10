@@ -4,8 +4,8 @@ import { getDataJsonStorage, USER_LOGIN } from "../../util/utilMethod";
 import { AvatarReducerType } from "../../Model/Model";
 
 const initialState: AvatarReducerType = {
-  avatar: getDataJsonStorage(USER_LOGIN)?.user.avatar,
-  userName: getDataJsonStorage(USER_LOGIN)?.user.name,
+  avatar: getDataJsonStorage(USER_LOGIN)?.user?.avatar,
+  userName: getDataJsonStorage(USER_LOGIN)?.user?.name,
 };
 
 const avatarReducer = createSlice({

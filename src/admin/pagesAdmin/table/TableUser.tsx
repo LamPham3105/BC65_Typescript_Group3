@@ -357,17 +357,19 @@ const TableUser: React.FC = () => {
               <Select.Option value="User">User</Select.Option>
             </Select>
           </Form.Item>
-          <Form.Item label="Avatar URL" name="avatar">
-            {currentUser.avatar && (
-              <div className="image-preview">
-                <img
-                  src={currentUser.avatar}
-                  alt="Preview"
-                  style={{ width: "100%", marginTop: "10px" }}
-                />
-              </div>
-            )}
-          </Form.Item>
+          {currentUser.id !== 0 && (
+            <Form.Item label="Avatar URL" name="avatar">
+              {currentUser.avatar && (
+                <div className="image-preview">
+                  <img
+                    src={currentUser.avatar}
+                    alt="Preview"
+                    style={{ width: "100%", marginTop: "10px" }}
+                  />
+                </div>
+              )}
+            </Form.Item>
+          )}
         </Form>
       </Modal>
     </div>
