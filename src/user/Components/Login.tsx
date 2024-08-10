@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   emailRegExp,
   getDataJsonStorage,
-  passRegExp,
   USER_LOGIN,
 } from "../../util/utilMethod";
 import { userApi } from "../../service/user/userApi";
@@ -33,7 +32,7 @@ const Login: React.FC = () => {
         if (data.content.user.role === "USER") {
           navigate(0);
         } else if (data.content.user.role === "ADMIN") {
-          navigate("/admin/dashboard-admin");
+          navigate("/admin/table-user");
           window.location.reload();
         }
       } else {
@@ -47,12 +46,7 @@ const Login: React.FC = () => {
     email: Yup.string()
       .matches(emailRegExp, "Email invalidate")
       .required("Please input email!"),
-    password: Yup.string()
-      .matches(
-        passRegExp,
-        "Password must have 6-10 characters (contains at least 1 numeric character, 1 uppercase character, 1 special character)"
-      )
-      .required("Please input password!"),
+    password: Yup.string().required("Please input password!"),
   });
 
   const formik = useCustomFormik<LoginFormValues>(
