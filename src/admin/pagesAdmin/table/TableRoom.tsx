@@ -165,7 +165,7 @@ const TableRoom: React.FC = () => {
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     field: keyof RoomData
   ) => {
     setCurrentRoom((prevRoom) => ({
@@ -277,7 +277,12 @@ const TableRoom: React.FC = () => {
         onOk={handleOk}
         onCancel={handleCancel}
         footer={[
-          <button key="submit" className="btn btn-primary" onClick={handleOk}>
+          <button
+            key="submit"
+            className="btn btn-primary"
+            style={{ marginRight: "20px" }}
+            onClick={handleOk}
+          >
             {currentRoom.id === 0 ? "Add" : "Edit"}
           </button>,
           <button

@@ -14,6 +14,10 @@ const AdminTemplate: React.FC = () => {
   const { userLogin } = useSelector((state: RootState) => state.userReducer);
 
   if (userLogin?.user.role !== "ADMIN") {
+    console.log(
+      'userLogin?.user.role !== "ADMIN": ',
+      userLogin?.user.role !== "ADMIN"
+    );
     navigate("/");
   }
 

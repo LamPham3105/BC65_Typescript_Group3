@@ -28,6 +28,10 @@ const UserMenu: React.FC = () => {
     navigate("/info-user");
   };
 
+  const handleManageAdmin = () => {
+    navigate("/admin/table-user");
+  };
+
   const handleTabSwitch = (tab: "login" | "register") => {
     setActiveTab(tab);
     setTimeout(() => {
@@ -40,16 +44,32 @@ const UserMenu: React.FC = () => {
 
   const renderPopup = () => {
     if (userLogin) {
-      return (
-        <>
-          <a className="dropdown-item" onClick={handleManage}>
-            Manage information
-          </a>
-          <a className="dropdown-item" onClick={handleLogOut}>
-            Log out
-          </a>
-        </>
-      );
+      if (userLogin.user.role === "ADMIN") {
+        return (
+          <>
+            <a className="dropdown-item" onClick={handleManage}>
+              Manage information
+            </a>
+            <a className="dropdown-item" onClick={handleManageAdmin}>
+              Manage admin
+            </a>
+            <a className="dropdown-item" onClick={handleLogOut}>
+              Log out
+            </a>
+          </>
+        );
+      } else {
+        return (
+          <>
+            <a className="dropdown-item" onClick={handleManage}>
+              Manage information
+            </a>
+            <a className="dropdown-item" onClick={handleLogOut}>
+              Log out
+            </a>
+          </>
+        );
+      }
     } else {
       return (
         <>

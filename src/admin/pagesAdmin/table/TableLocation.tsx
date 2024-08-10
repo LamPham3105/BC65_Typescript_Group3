@@ -231,7 +231,12 @@ const TableLocation: React.FC = () => {
         onOk={handleOk}
         onCancel={handleCancel}
         footer={[
-          <button key="submit" className="btn btn-primary" onClick={handleOk}>
+          <button
+            key="submit"
+            className="btn btn-primary"
+            style={{ marginRight: "20px" }}
+            onClick={handleOk}
+          >
             {currentLocation.id === 0 ? "Add" : "Edit"}
           </button>,
           <button

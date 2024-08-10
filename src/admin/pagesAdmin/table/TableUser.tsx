@@ -230,7 +230,12 @@ const TableUser: React.FC = () => {
         onOk={handleOk}
         onCancel={handleCancel}
         footer={[
-          <button key="submit" className="btn btn-primary" onClick={handleOk}>
+          <button
+            key="submit"
+            className="btn btn-primary"
+            style={{ marginRight: "20px" }}
+            onClick={handleOk}
+          >
             {currentUser.id === 0 ? "Add" : "Edit"}
           </button>,
           <button
@@ -245,7 +250,6 @@ const TableUser: React.FC = () => {
         <Form layout="vertical" form={form} initialValues={currentUser}>
           <Form.Item
             label="Name"
-            name="name"
             rules={[
               { required: true, message: "Please input the name!" },
               { max: 50, message: "Name cannot be longer than 50 characters!" },
@@ -258,7 +262,6 @@ const TableUser: React.FC = () => {
           </Form.Item>
           <Form.Item
             label="Email"
-            name="email"
             rules={[
               { required: true, message: "Please input a valid email!" },
               { type: "email", message: "The input is not a valid email!" },
@@ -271,7 +274,6 @@ const TableUser: React.FC = () => {
           </Form.Item>
           <Form.Item
             label="Phone"
-            name="phone"
             rules={[
               {
                 max: 15,
@@ -286,7 +288,6 @@ const TableUser: React.FC = () => {
           </Form.Item>
           <Form.Item
             label="Birthday"
-            name="birthday"
             rules={[{ type: "date", message: "Please input a valid date!" }]}
           >
             <Input
@@ -297,7 +298,6 @@ const TableUser: React.FC = () => {
           </Form.Item>
           <Form.Item
             label="Gender"
-            name="gender"
             rules={[{ required: true, message: "Please select the gender!" }]}
           >
             <Select
@@ -310,7 +310,6 @@ const TableUser: React.FC = () => {
           </Form.Item>
           <Form.Item
             label="Role"
-            name="role"
             rules={[{ required: true, message: "Please select the role!" }]}
           >
             <Select
@@ -328,7 +327,6 @@ const TableUser: React.FC = () => {
           </Form.Item>
           <Form.Item
             label="Password"
-            name="password"
             rules={[
               { required: true, message: "Please input the password!" },
               {
@@ -343,7 +341,7 @@ const TableUser: React.FC = () => {
               onChange={(e) => handleInputChange(e, "password")}
             />
           </Form.Item>
-          <Form.Item label="Avatar URL" name="avatar">
+          <Form.Item label="Avatar URL">
             {currentUser.avatar && (
               <div className="image-preview">
                 <img
