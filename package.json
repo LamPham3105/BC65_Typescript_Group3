@@ -23,7 +23,7 @@
     "@types/node": "^22.1.0",
     "@types/react-datepicker": "^7.0.0",
     "animate-number": "^0.0.2",
-    "antd": "^5.17.2",
+    "antd": "^5.20.0",
     "aos": "^2.3.4",
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",

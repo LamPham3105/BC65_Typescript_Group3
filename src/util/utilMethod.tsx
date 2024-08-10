@@ -22,6 +22,43 @@ const passRegExp =
 
 const birthRegExp = /^\d{4}-\d{2}-\d{2}$/;
 
+const maPhongRegExp = /^[0-9]{1,6}$/;
+
+const validateCheckinRoom = (checkinDate: string): boolean => {
+  const checkin = new Date(checkinDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return checkin >= today;
+};
+
+const validateCheckoutRoom = (
+  checkinDate: string,
+  checkoutDate: string
+): boolean => {
+  const checkin = new Date(checkinDate);
+  const checkout = new Date(checkoutDate);
+  return checkout >= checkin;
+};
+
+const validateNoSpecialChars = (input: string): boolean => {
+  const specialCharRegExp = /^[a-zA-Z0-9 ]+$/;
+  return specialCharRegExp.test(input);
+};
+
+// Validate number with max length
+export const numberRegExpLength = (maxLength: number) =>
+  new RegExp(`^\\d{1,${maxLength}}$`);
+
+// Validate image file
+export const validateImageFile = (file: File) => {
+  const validTypes = ["image/jpeg", "image/png"];
+  return validTypes.includes(file.type);
+};
+export const validatePassword = (password: string): boolean => {
+  const passwordRegExp = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,12}$/;
+  return passwordRegExp.test(password);
+};
+
 const getDataTextStorage = (storeName: string) => {
   if (localStorage.getItem(storeName)) {
     return localStorage.getItem(storeName);
@@ -127,6 +164,10 @@ export {
   passRegExp,
   wordRegExp,
   birthRegExp,
+  maPhongRegExp,
+  validateCheckinRoom,
+  validateCheckoutRoom,
+  validateNoSpecialChars,
   isOver18,
   setCookie,
   getCookie,
