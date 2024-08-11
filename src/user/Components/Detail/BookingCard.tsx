@@ -6,8 +6,9 @@ import { RootState } from "../../../redux/store";
 import { convertDateAndTime } from "../../../util/utilMethod";
 import { showNotification } from "../../../redux/reducers/notificationReducer";
 import { Modal } from "antd";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { roomApi } from "../../../service/room/roomApi";
+import useRoute from "../../../hook/useRoute";
 
 const BookingCard: React.FC<BookingCardProps> = ({
   price,
@@ -17,6 +18,9 @@ const BookingCard: React.FC<BookingCardProps> = ({
   isBooking,
   idBooking,
 }) => {
+  const queryClient = useQueryClient();
+
+  const { navigate } = useRoute();
   const dispatch = useDispatch();
 
   const { bookingData } = useSelector((state: RootState) => state.bookReducer);
@@ -80,6 +84,8 @@ const BookingCard: React.FC<BookingCardProps> = ({
           !isBooking ? "Booking success" : "Update booking success"
         )
       );
+
+      navigate("/info-user");
     }
   };
 

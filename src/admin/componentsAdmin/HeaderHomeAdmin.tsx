@@ -1,12 +1,19 @@
 import React from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { DispatchType, RootState } from "../../redux/store";
 import useRoute from "../../hook/useRoute";
+import { logout } from "../../redux/reducers/userReducer";
 
 const HeaderHomeAdmin: React.FC = () => {
   const { navigate } = useRoute();
+  const dispatch: DispatchType = useDispatch();
 
   const { userLogin } = useSelector((state: RootState) => state.userReducer);
+
+  const handleLogOut = () => {
+    dispatch(logout());
+    navigate("/");
+  };
 
   return (
     <div className="main-header">
@@ -84,7 +91,7 @@ const HeaderHomeAdmin: React.FC = () => {
                       My Profile
                     </a>
                     <div className="dropdown-divider" />
-                    <a className="dropdown-item" href="#">
+                    <a className="dropdown-item" onClick={handleLogOut}>
                       Logout
                     </a>
                   </li>
