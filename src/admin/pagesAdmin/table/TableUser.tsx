@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  UseQueryResult,
+} from "@tanstack/react-query";
 import { userApi } from "../../../service/user/userApi";
 import { UserData } from "../../../Model/Manage";
 import {
@@ -32,6 +37,8 @@ dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 dayjs.extend(utc);
 const TableUser: React.FC = () => {
+  const queryClient = useQueryClient();
+
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<UserData>({
@@ -98,6 +105,9 @@ const TableUser: React.FC = () => {
       }
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["listUsers", currentPage, pageSize],
+      });
       setIsModalVisible(false);
       notification.success({
         message: currentUser.id === 0 ? "User Added" : "User Updated",
@@ -110,6 +120,16 @@ const TableUser: React.FC = () => {
         description: error.message,
       });
     },
+  });
+
+  const mutationDeleteUser = useMutation({
+    mutationFn: (id: string) => userApi.deleteUser(id),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: ["listUsers", currentPage, pageSize],
+      });
+    },
+    onError: () => {},
   });
 
   const handlePageChange = (page: number) => {
@@ -255,7 +275,14 @@ const TableUser: React.FC = () => {
                             >
                               Edit
                             </button>
-                            <button className="btn btn-danger btn-sm">
+                            <button
+                              className="btn btn-danger btn-sm"
+                              onClick={() => {
+                                if (user?.id !== undefined) {
+                                  mutationDeleteUser.mutate(user.id.toString());
+                                }
+                              }}
+                            >
                               Delete
                             </button>
                           </div>

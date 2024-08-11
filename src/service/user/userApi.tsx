@@ -62,7 +62,7 @@ export class UserApi {
     } catch (error) {}
   }
 
-  async deleteUser(id: number) {
+  async deleteUser(id: string) {
     try {
       const res = await httpClient.delete(`/api/users?id=${id}`);
       return res.data;
