@@ -17,6 +17,7 @@ import TableLocation from "./admin/pagesAdmin/table/TableLocation.tsx";
 import TableComment from "./admin/pagesAdmin/table/TableComment.tsx";
 import TableBookingRoom from "./admin/pagesAdmin/table/TableBookingRoom.tsx";
 import TableUser from "./admin/pagesAdmin/table/TableUser.tsx";
+import NotFoundPage from "./pageGlobal/NotFoundPage.tsx";
 
 export const routeLink: any = createBrowserHistory();
 
@@ -46,6 +47,8 @@ function App() {
             <Route path="table-booking-room" element={<TableBookingRoom />} />
             <Route path="table-user" element={<TableUser />}></Route>
           </Route>
+          {/* 404 Route */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </HistoryRouter>
     </>

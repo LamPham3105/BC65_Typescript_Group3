@@ -16,14 +16,7 @@ import {
   Select,
   notification,
 } from "antd";
-import {
-  wordRegExp,
-  emailRegExp,
-  phoneRegExp,
-  birthRegExp,
-  passRegExp,
-  validateNoSpecialChars,
-} from "../../../util/utilMethod";
+import { wordRegExp, emailRegExp, phoneRegExp } from "../../../util/utilMethod";
 
 import dayjs, { Dayjs } from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
@@ -36,6 +29,7 @@ import Loading from "../../../user/Components/Antd/Loading";
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 dayjs.extend(utc);
+
 const TableUser: React.FC = () => {
   const queryClient = useQueryClient();
 
@@ -210,11 +204,19 @@ const TableUser: React.FC = () => {
     date: Dayjs | null,
     dateString: string | string[]
   ) => {
-    if (date && dayjs.isDayjs(date) && date.isValid()) {
+    // Handle dateString based on its type
+    const validDateString = Array.isArray(dateString)
+      ? dateString[0]
+      : dateString;
+
+    if (date && date.isValid()) {
       setCurrentUser((prevUser) => ({
         ...prevUser,
-        birthday: dateString as string,
+        birthday: validDateString,
       }));
+    } else {
+      // Handle invalid date scenario if necessary
+      console.log("Invalid date selected");
     }
   };
 
@@ -329,7 +331,6 @@ const TableUser: React.FC = () => {
         <Form layout="vertical" form={form}>
           <Form.Item
             label="Name"
-            name="name"
             rules={[
               { required: true, message: "Please enter the name" },
               {
@@ -345,7 +346,6 @@ const TableUser: React.FC = () => {
           </Form.Item>
           <Form.Item
             label="Email"
-            name="email"
             rules={[
               { required: true, message: "Please enter the email" },
               { pattern: emailRegExp, message: "Invalid email format" },
@@ -358,7 +358,6 @@ const TableUser: React.FC = () => {
           </Form.Item>
           <Form.Item
             label="Phone"
-            name="phone"
             rules={[
               { required: true, message: "Please enter the phone number" },
               { pattern: phoneRegExp, message: "Invalid phone number" },
@@ -371,12 +370,13 @@ const TableUser: React.FC = () => {
           </Form.Item>
           <Form.Item
             label="Birthday"
-            name="birthday"
             rules={[{ required: true, message: "Please select the birthday" }]}
           >
             <DatePicker
               format="YYYY-MM-DD"
-              value={currentUser.birthday ? dayjs(currentUser.birthday) : null}
+              value={
+                currentUser?.birthday ? dayjs(currentUser?.birthday) : null
+              }
               onChange={handleDateChange}
             />
           </Form.Item>
@@ -392,7 +392,6 @@ const TableUser: React.FC = () => {
           </Form.Item>
           <Form.Item
             label="Role"
-            name="role"
             rules={[{ required: true, message: "Please select a role" }]}
           >
             <Select
