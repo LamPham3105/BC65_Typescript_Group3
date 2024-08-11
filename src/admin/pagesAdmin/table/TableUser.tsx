@@ -2,16 +2,35 @@ import React, { useState } from "react";
 import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query";
 import { userApi } from "../../../service/user/userApi";
 import { UserData } from "../../../Model/Manage";
-import { Form, Input, Modal, Pagination, Select, notification } from "antd";
+import {
+  DatePicker,
+  Form,
+  Input,
+  Modal,
+  Pagination,
+  Select,
+  notification,
+} from "antd";
 import {
   wordRegExp,
   emailRegExp,
   phoneRegExp,
   birthRegExp,
-  validatePassword,
+  passRegExp,
+  validateNoSpecialChars,
 } from "../../../util/utilMethod";
+
+import dayjs, { Dayjs } from "dayjs";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import utc from "dayjs/plugin/utc";
+
 import Loading from "../../../user/Components/Antd/Loading";
 
+// Cấu hình dayjs
+dayjs.extend(isSameOrBefore);
+dayjs.extend(isSameOrAfter);
+dayjs.extend(utc);
 const TableUser: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -21,15 +40,14 @@ const TableUser: React.FC = () => {
     email: "",
     phone: "",
     birthday: "",
-    gender: true, // boolean value
+    gender: true, // Đảm bảo gender là boolean
     role: "",
-    password: "", // Initialize optional properties
+    password: "",
     avatar: "",
   });
 
   const [form] = Form.useForm();
   const pageSize = 6;
-  type UserQueryError = Error;
 
   const queryResult: UseQueryResult<
     {
@@ -39,7 +57,7 @@ const TableUser: React.FC = () => {
       pageSize: number;
       totalRow: number;
     },
-    UserQueryError
+    Error
   > = useQuery({
     queryKey: ["listUsers", currentPage, pageSize],
     queryFn: async () => {
@@ -59,7 +77,7 @@ const TableUser: React.FC = () => {
       } catch (error) {
         console.error("Error fetching users:", error);
         return {
-          data: [], // Return an empty array if there is an error
+          data: [],
           keywords: null,
           pageIndex: 0,
           pageSize: 0,
@@ -67,7 +85,7 @@ const TableUser: React.FC = () => {
         };
       }
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
   });
 
@@ -106,12 +124,25 @@ const TableUser: React.FC = () => {
         email: "",
         phone: "",
         birthday: "",
-        gender: true, // default boolean value
+        gender: true,
         role: "",
-        password: "", // default value for optional properties
+        password: "",
         avatar: "",
       }
     );
+    form.resetFields(); // Reset form trước khi mở modal
+    form.setFieldsValue(
+      user || {
+        name: "",
+        email: "",
+        phone: "",
+        birthday: "",
+        gender: true,
+        role: "",
+        password: "",
+        avatar: "",
+      }
+    ); // Cập nhật giá trị của form với currentUser
     setIsModalVisible(true);
   };
 
@@ -128,6 +159,7 @@ const TableUser: React.FC = () => {
 
   const handleCancel = () => {
     setIsModalVisible(false);
+    form.resetFields(); // Xóa giá trị khi đóng modal
   };
 
   const handleInputChange = (
@@ -140,11 +172,30 @@ const TableUser: React.FC = () => {
     }));
   };
 
-  const handleGenderChange = (value: string) => {
+  const handleGenderChange = (value: boolean) => {
     setCurrentUser((prevUser) => ({
       ...prevUser,
-      gender: value === "Male", // Convert string to boolean
+      gender: value,
     }));
+  };
+
+  const handleRoleChange = (value: string) => {
+    setCurrentUser((prevUser) => ({
+      ...prevUser,
+      role: value,
+    }));
+  };
+
+  const handleDateChange = (
+    date: Dayjs | null,
+    dateString: string | string[]
+  ) => {
+    if (date && dayjs.isDayjs(date) && date.isValid()) {
+      setCurrentUser((prevUser) => ({
+        ...prevUser,
+        birthday: dateString as string,
+      }));
+    }
   };
 
   if (queryResult.isLoading) {
@@ -157,8 +208,6 @@ const TableUser: React.FC = () => {
 
   const totalRow = queryResult?.data?.totalRow;
   const data = queryResult?.data?.data || [];
-
-  const total = totalRow; // Total number of rows
 
   return (
     <div className="container">
@@ -219,7 +268,7 @@ const TableUser: React.FC = () => {
               <Pagination
                 align="center"
                 current={currentPage}
-                total={total} // Total count from the API
+                total={totalRow}
                 pageSize={pageSize}
                 onChange={handlePageChange}
               />
@@ -229,7 +278,7 @@ const TableUser: React.FC = () => {
       </div>
       <Modal
         title={currentUser.id === 0 ? "Add User" : "Edit User"}
-        open={isModalVisible} // Use `open` instead of `visible` for Antd v5
+        open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
         footer={[
@@ -250,13 +299,16 @@ const TableUser: React.FC = () => {
           </button>,
         ]}
       >
-        <Form layout="vertical" form={form} initialValues={currentUser}>
+        <Form layout="vertical" form={form}>
           <Form.Item
             label="Name"
+            name="name"
             rules={[
-              { required: true, message: "Please input the name!" },
-              { max: 50, message: "Name cannot be longer than 50 characters!" },
-              { pattern: wordRegExp, message: "Invalid name format!" },
+              { required: true, message: "Please enter the name" },
+              {
+                pattern: wordRegExp,
+                message: "Name should not contain special characters",
+              },
             ]}
           >
             <Input
@@ -266,10 +318,10 @@ const TableUser: React.FC = () => {
           </Form.Item>
           <Form.Item
             label="Email"
+            name="email"
             rules={[
-              { required: true, message: "Please input a valid email!" },
-              { type: "email", message: "The input is not a valid email!" },
-              { pattern: emailRegExp, message: "Invalid email format!" },
+              { required: true, message: "Please enter the email" },
+              { pattern: emailRegExp, message: "Invalid email format" },
             ]}
           >
             <Input
@@ -279,12 +331,10 @@ const TableUser: React.FC = () => {
           </Form.Item>
           <Form.Item
             label="Phone"
+            name="phone"
             rules={[
-              {
-                max: 15,
-                message: "Phone number cannot be longer than 15 characters!",
-              },
-              { pattern: phoneRegExp, message: "Invalid phone number format!" },
+              { required: true, message: "Please enter the phone number" },
+              { pattern: phoneRegExp, message: "Invalid phone number" },
             ]}
           >
             <Input
@@ -295,81 +345,38 @@ const TableUser: React.FC = () => {
           <Form.Item
             label="Birthday"
             name="birthday"
-            rules={[
-              { type: "date", message: "Please input a valid date!" },
-              { pattern: birthRegExp, message: "Invalid birth date format!" },
-            ]}
+            rules={[{ required: true, message: "Please select the birthday" }]}
           >
-            <Input
-              type="date"
-              value={currentUser.birthday}
-              onChange={(e) => handleInputChange(e, "birthday")}
+            <DatePicker
+              format="YYYY-MM-DD"
+              value={currentUser.birthday ? dayjs(currentUser.birthday) : null}
+              onChange={handleDateChange}
             />
           </Form.Item>
-          <Form.Item
-            label="Gender"
-            rules={[{ required: true, message: "Please select the gender!" }]}
-          >
+          <Form.Item label="Gender">
             <Select
-              value={currentUser.gender ? "Male" : "Female"}
+              value={currentUser.gender}
               onChange={handleGenderChange}
-            >
-              <Select.Option value="Male">Male</Select.Option>
-              <Select.Option value="Female">Female</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item
-            label="Password"
-            name="password"
-            rules={[
-              { required: true, message: "Please input the password!" },
-              {
-                validator: (_, value) =>
-                  validatePassword(value)
-                    ? Promise.resolve()
-                    : Promise.reject(
-                        new Error(
-                          "Password must contain 6 to 12 characters, including at least one letter and one number!"
-                        )
-                      ),
-              },
-            ]}
-          >
-            <Input.Password
-              value={currentUser.password}
-              onChange={(e) => handleInputChange(e, "password")}
+              options={[
+                { value: true, label: "Male" },
+                { value: false, label: "Female" },
+              ]}
             />
           </Form.Item>
           <Form.Item
             label="Role"
-            rules={[{ required: true, message: "Please select the role!" }]}
+            name="role"
+            rules={[{ required: true, message: "Please select a role" }]}
           >
             <Select
               value={currentUser.role}
-              onChange={(value) =>
-                setCurrentUser((prevUser) => ({
-                  ...prevUser,
-                  role: value,
-                }))
-              }
-            >
-              <Select.Option value="Admin">Admin</Select.Option>
-              <Select.Option value="User">User</Select.Option>
-            </Select>
+              onChange={handleRoleChange}
+              options={[
+                { value: "admin", label: "Admin" },
+                { value: "user", label: "User" },
+              ]}
+            />
           </Form.Item>
-          {currentUser.id !== 0 && (
-            <Form.Item label="Avatar URL" name="avatar">
-              {currentUser.avatar && (
-                <div className="image-preview">
-                  <img
-                    src={currentUser.avatar}
-                    alt="Preview"
-                    style={{ width: "100%", marginTop: "10px" }}
-                  />
-                </div>
-              )}
-            </Form.Item>
-          )}
         </Form>
       </Modal>
     </div>

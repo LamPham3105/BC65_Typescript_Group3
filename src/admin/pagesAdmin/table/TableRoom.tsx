@@ -347,10 +347,16 @@ const TableRoom: React.FC = () => {
           <Form.Item
             label="Room Name"
             rules={[
-              { required: true, message: "Please input the room name!" },
+              { required: true, message: "Please input room name!" },
               {
-                pattern: /^[a-zA-Z0-9 ]+$/, // Đối tượng RegExp trực tiếp
-                message: "Room name must not contain special characters",
+                validator: (_, value) => {
+                  if (!validateNoSpecialChars(value)) {
+                    return Promise.reject(
+                      new Error("Room name must not contain special characters")
+                    );
+                  }
+                  return Promise.resolve();
+                },
               },
             ]}
           >
@@ -440,10 +446,18 @@ const TableRoom: React.FC = () => {
           <Form.Item
             label="Description"
             rules={[
-              { required: true, message: "Please input the room description!" },
+              { required: true, message: "Please input description!" },
               {
-                pattern: wordRegExp,
-                message: "Description must not contain special characters",
+                validator: (_, value) => {
+                  if (!validateNoSpecialChars(value)) {
+                    return Promise.reject(
+                      new Error(
+                        "Description must not contain special characters"
+                      )
+                    );
+                  }
+                  return Promise.resolve();
+                },
               },
             ]}
           >
@@ -482,7 +496,7 @@ const TableRoom: React.FC = () => {
             />
           </Form.Item>
 
-          <Form.Item name="banLa" valuePropName="checked" label="Iron">
+          <Form.Item valuePropName="checked" label="Iron">
             <Checkbox
               checked={currentRoom.banLa}
               onChange={(e) =>
@@ -494,7 +508,7 @@ const TableRoom: React.FC = () => {
             />
           </Form.Item>
 
-          <Form.Item name="tivi" valuePropName="checked" label="TV">
+          <Form.Item valuePropName="checked" label="TV">
             <Checkbox
               checked={currentRoom.tivi}
               onChange={(e) =>
@@ -518,7 +532,7 @@ const TableRoom: React.FC = () => {
             />
           </Form.Item>
 
-          <Form.Item name="wifi" valuePropName="checked" label="WiFi">
+          <Form.Item valuePropName="checked" label="WiFi">
             <Checkbox
               checked={currentRoom.wifi}
               onChange={(e) =>

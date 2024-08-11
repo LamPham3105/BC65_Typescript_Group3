@@ -18,7 +18,7 @@ const wordRegExp =
   /^[a-zA-Z_ÀÁÂÃÈÉÊẾÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêếìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\ ]+$/;
 
 const passRegExp =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,10}$/;
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,12}$/;
 
 const birthRegExp = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -41,8 +41,8 @@ const validateCheckoutRoom = (
 };
 
 const validateNoSpecialChars = (input: string): boolean => {
-  const specialCharRegExp = /^[a-zA-Z0-9 ]+$/;
-  return specialCharRegExp.test(input);
+  const allowedCharsRegExp = /^[\p{L}\p{N} ]+$/u;
+  return allowedCharsRegExp.test(input);
 };
 
 // Validate number with max length

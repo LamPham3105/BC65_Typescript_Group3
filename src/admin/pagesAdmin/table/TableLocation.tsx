@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Modal, Pagination, Form, Input } from "antd";
+import React, { useEffect, useState, useCallback } from "react";
+import { Modal, Pagination, Form, Input, Button } from "antd";
 import { locateApi } from "../../../service/locate/locateApi";
 import { Location } from "../../../Model/Manage";
 import { useMutation } from "@tanstack/react-query";
@@ -15,6 +15,7 @@ import {
 const TableLocation: React.FC = () => {
   const dispatch: DispatchType = useDispatch();
 
+  const [form] = Form.useForm();
   const [file, setFile] = useState<File | null>(null);
   const [locations, setLocations] = useState<Location[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -31,7 +32,7 @@ const TableLocation: React.FC = () => {
 
   const pageSize = 6;
 
-  const fetchLocations = async () => {
+  const fetchLocations = useCallback(async () => {
     try {
       const data = await locateApi.getLocate();
       setTotal(data.length);
@@ -42,12 +43,13 @@ const TableLocation: React.FC = () => {
       setLocations(paginatedData);
     } catch (error) {
       console.error("Failed to fetch locations:", error);
+      dispatch(showNotification("Failed to fetch locations"));
     }
-  };
+  }, [currentPage, dispatch]);
 
   useEffect(() => {
     fetchLocations();
-  }, [currentPage]);
+  }, [fetchLocations]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -63,6 +65,7 @@ const TableLocation: React.FC = () => {
         hinhAnh: "",
       }
     );
+    form.resetFields();
     setIsModalVisible(true);
   };
 
@@ -74,11 +77,13 @@ const TableLocation: React.FC = () => {
       }
       fetchLocations();
     },
-    onError: (error) => {},
+    onError: (error) => {
+      dispatch(showNotification("Failed to add location"));
+    },
   });
 
   const mutationUpdateLocate = useMutation({
-    mutationFn: (data: { locateData: object; id: string }) =>
+    mutationFn: (data: { locateData: Location; id: string }) =>
       locateApi.updateLocate(data.locateData, data.id),
     onSuccess: (data) => {
       if (file && data) {
@@ -86,13 +91,15 @@ const TableLocation: React.FC = () => {
       }
       fetchLocations();
     },
-    onError: () => {},
+    onError: () => {
+      dispatch(showNotification("Failed to update location"));
+    },
   });
 
   const mutationLocateImage = useMutation({
     mutationFn: (data: { image: File; id: string }) =>
       locateApi.postLocateImage(data.image, data.id),
-    onSuccess: (data) => {
+    onSuccess: () => {
       dispatch(showNotification("Upload success"));
     },
     onError: () => {
@@ -102,38 +109,44 @@ const TableLocation: React.FC = () => {
 
   const mutationDeleteLocate = useMutation({
     mutationFn: (id: string) => locateApi.deleteLocate(id),
-    onSuccess: (data) => {
+    onSuccess: () => {
       fetchLocations();
     },
-    onError: () => {},
+    onError: () => {
+      dispatch(showNotification("Failed to delete location"));
+    },
   });
 
-  const handleOk = () => {
-    // Handle add or edit logic here
-    if (currentLocation.id === 0) {
-      mutationPostLocate.mutate(currentLocation);
-    } else {
-      mutationUpdateLocate.mutate({
-        locateData: currentLocation,
-        id: currentLocation.id.toString(),
-      });
+  const handleOk = async () => {
+    try {
+      await form.validateFields();
+      if (currentLocation.id === 0) {
+        mutationPostLocate.mutate(currentLocation);
+      } else {
+        mutationUpdateLocate.mutate({
+          locateData: currentLocation,
+          id: currentLocation.id.toString(),
+        });
+      }
+      setIsModalVisible(false);
+    } catch (error) {
+      console.log("Validation Failed:", error);
     }
-    setIsModalVisible(false);
   };
 
   const handleCancel = () => {
     setIsModalVisible(false);
   };
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: keyof Location
-  ) => {
-    setCurrentLocation((prevLocation) => ({
-      ...prevLocation,
-      [field]: e.target.value,
-    }));
-  };
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>, field: keyof Location) => {
+      setCurrentLocation((prevLocation) => ({
+        ...prevLocation,
+        [field]: e.target.value,
+      }));
+    },
+    []
+  );
 
   const validateImageFile = (file: File): boolean => {
     const validExtensions = ["image/jpeg", "image/png"];
@@ -153,9 +166,9 @@ const TableLocation: React.FC = () => {
         };
         reader.readAsDataURL(file);
         setFile(file);
-        setImageError(null); // Reset error if file is valid
+        setImageError(null);
       } else {
-        setImageError("Only .jpg and .png files are allowed."); // Set error if file is invalid
+        setImageError("Only .jpg and .png files are allowed.");
       }
     }
   };
@@ -195,7 +208,7 @@ const TableLocation: React.FC = () => {
                           <img
                             src={location.hinhAnh}
                             alt={location.tenViTri}
-                            style={{ width: "100%", height: "auto" }} // Ensures the image fits the column
+                            style={{ width: "100%", height: "auto" }}
                           />
                         </td>
                         <td>
@@ -246,38 +259,31 @@ const TableLocation: React.FC = () => {
         onOk={handleOk}
         onCancel={handleCancel}
         footer={[
-          <button
-            key="submit"
-            className="btn btn-primary"
-            style={{ marginRight: "20px" }}
-            onClick={handleOk}
-          >
+          <Button key="submit" type="primary" onClick={handleOk}>
             {currentLocation.id === 0 ? "Add" : "Edit"}
-          </button>,
-          <button
-            key="cancel"
-            className="btn btn-secondary"
-            onClick={handleCancel}
-          >
+          </Button>,
+          <Button key="back" onClick={handleCancel}>
             Cancel
-          </button>,
+          </Button>,
         ]}
       >
-        <Form layout="vertical">
+        <Form form={form} layout="vertical">
           <Form.Item
-            label="Location Name"
+            label="Location"
+            name="tenViTri"
             rules={[
+              { required: true, message: "Please input location name!" },
               {
-                required: true,
-                message: "Location name is required",
-              },
-              {
-                validator: (_, value) =>
-                  validateNoSpecialChars(value)
-                    ? Promise.resolve()
-                    : Promise.reject(
+                validator: (_, value) => {
+                  if (!validateNoSpecialChars(value)) {
+                    return Promise.reject(
+                      new Error(
                         "Location name must not contain special characters"
-                      ),
+                      )
+                    );
+                  }
+                  return Promise.resolve();
+                },
               },
             ]}
           >
@@ -287,61 +293,44 @@ const TableLocation: React.FC = () => {
             />
           </Form.Item>
           <Form.Item
-            label="City"
+            name="tinhThanh"
+            label="Province"
             rules={[
-              {
-                required: true,
-                message: "City is required",
-              },
-              {
-                pattern: wordRegExp,
-                message: "City name must not contain special characters",
-              },
+              { required: true, message: "Please enter province!" },
+              { pattern: wordRegExp, message: "Invalid province" },
             ]}
+            initialValue={currentLocation.tinhThanh}
           >
             <Input
-              value={currentLocation.tinhThanh}
+              placeholder="Province"
               onChange={(e) => handleInputChange(e, "tinhThanh")}
             />
           </Form.Item>
           <Form.Item
-            label="Country"
+            name="quocGia"
+            label="Nation"
             rules={[
-              {
-                required: true,
-                message: "Country is required",
-              },
-              {
-                pattern: wordRegExp,
-                message: "Country name must not contain special characters",
-              },
+              { required: true, message: "Please enter nation!" },
+              { pattern: wordRegExp, message: "Invalid nation" },
             ]}
+            initialValue={currentLocation.quocGia}
           >
             <Input
-              value={currentLocation.quocGia}
+              placeholder="Nation"
               onChange={(e) => handleInputChange(e, "quocGia")}
             />
           </Form.Item>
-          <Form.Item label="Image">
-            <Input type="file" accept=".jpg,.png" onChange={handleFileChange} />
-            {imageError && (
-              <div style={{ color: "red", marginTop: "10px" }}>
-                {imageError}
-              </div>
-            )}
-            {currentLocation.hinhAnh && (
-              <div style={{ marginTop: "10px" }}>
-                <img
-                  src={currentLocation.hinhAnh}
-                  alt="Preview"
-                  style={{
-                    width: "100px",
-                    height: "100px",
-                    objectFit: "cover",
-                  }}
-                />
-              </div>
-            )}
+          <Form.Item
+            label="Image"
+            rules={[
+              {
+                required: false,
+                message: "Only .jpg and .png files are allowed",
+              },
+            ]}
+          >
+            <Input type="file" onChange={handleFileChange} accept=".jpg,.png" />
+            {imageError && <span className="text-danger">{imageError}</span>}
           </Form.Item>
         </Form>
       </Modal>

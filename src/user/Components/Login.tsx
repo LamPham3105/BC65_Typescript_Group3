@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import {
   emailRegExp,
+  passRegExp,
   getDataJsonStorage,
   USER_LOGIN,
 } from "../../util/utilMethod";
@@ -46,7 +47,12 @@ const Login: React.FC = () => {
     email: Yup.string()
       .matches(emailRegExp, "Email invalidate")
       .required("Please input email!"),
-    password: Yup.string().required("Please input password!"),
+    password: Yup.string()
+      .matches(
+        passRegExp,
+        "Password must be 6-12 characters long, include at least one uppercase letter, one lowercase letter, one number, and one special character."
+      )
+      .required("Please input password!"),
   });
 
   const formik = useCustomFormik<LoginFormValues>(
