@@ -18,17 +18,11 @@ import {
 } from "antd";
 import { wordRegExp, emailRegExp, phoneRegExp } from "../../../util/utilMethod";
 
-import dayjs, { Dayjs } from "dayjs";
-import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
-import utc from "dayjs/plugin/utc";
+import { parseISO, isValid, format } from "date-fns";
 
 import Loading from "../../../user/Components/Antd/Loading";
 
-// Cấu hình dayjs
-dayjs.extend(isSameOrBefore);
-dayjs.extend(isSameOrAfter);
-dayjs.extend(utc);
+import debounce from "lodash.debounce";
 
 const TableUser: React.FC = () => {
   const queryClient = useQueryClient();
@@ -47,6 +41,8 @@ const TableUser: React.FC = () => {
     avatar: "",
   });
 
+  const [searchTerm, setSearchTerm] = useState<string>(""); // Thêm state để quản lý từ khóa tìm kiếm
+
   const [form] = Form.useForm();
   const pageSize = 6;
 
@@ -60,10 +56,14 @@ const TableUser: React.FC = () => {
     },
     Error
   > = useQuery({
-    queryKey: ["listUsers", currentPage, pageSize],
+    queryKey: ["listUsers", currentPage, pageSize, searchTerm], // Thêm searchTerm vào queryKey
     queryFn: async () => {
       try {
-        const response = await userApi.getUser(currentPage, pageSize);
+        const response = await userApi.getUser(
+          currentPage,
+          pageSize,
+          searchTerm
+        ); // Truyền searchTerm vào API
         if (response && response.data) {
           return {
             data: response.data,
@@ -100,7 +100,7 @@ const TableUser: React.FC = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["listUsers", currentPage, pageSize],
+        queryKey: ["listUsers", currentPage, pageSize, searchTerm],
       });
       setIsModalVisible(false);
       notification.success({
@@ -120,7 +120,7 @@ const TableUser: React.FC = () => {
     mutationFn: (id: string) => userApi.deleteUser(id),
     onSuccess: (data) => {
       queryClient.invalidateQueries({
-        queryKey: ["listUsers", currentPage, pageSize],
+        queryKey: ["listUsers", currentPage, pageSize, searchTerm],
       });
     },
     onError: () => {},
@@ -200,24 +200,35 @@ const TableUser: React.FC = () => {
     }));
   };
 
-  const handleDateChange = (
-    date: Dayjs | null,
-    dateString: string | string[]
-  ) => {
-    // Handle dateString based on its type
+  const handleDateChange = (date: any, dateString: string | string[]) => {
     const validDateString = Array.isArray(dateString)
       ? dateString[0]
       : dateString;
 
-    if (date && date.isValid()) {
+    if (date && isValid(date.toDate())) {
       setCurrentUser((prevUser) => ({
         ...prevUser,
         birthday: validDateString,
       }));
     } else {
-      // Handle invalid date scenario if necessary
       console.log("Invalid date selected");
     }
+  };
+
+  //tìm kiếm
+  const debouncedSearch = debounce((value: string) => {
+    setSearchTerm(value);
+  }, 300);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    debouncedSearch(e.target.value);
+  };
+
+  const handleSearch = () => {
+    setCurrentPage(1);
+    queryClient.invalidateQueries({
+      queryKey: ["listUsers", currentPage, pageSize, searchTerm],
+    });
   };
 
   if (queryResult.isLoading) {
@@ -240,6 +251,18 @@ const TableUser: React.FC = () => {
         <button className="btn btn-primary mb-5" onClick={() => showModal()}>
           Add User
         </button>
+        <div className="input-group mb-5" style={{ width: "33.33%" }}>
+          <input
+            type="text"
+            placeholder="Search ..."
+            className="form-control"
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+          <button className="btn btn-secondary" onClick={handleSearch}>
+            Search
+          </button>
+        </div>
         <div className="row">
           <div className="card">
             <div className="card-body">
@@ -264,30 +287,21 @@ const TableUser: React.FC = () => {
                         <td>{user?.phone}</td>
                         <td>{user?.role}</td>
                         <td>
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                            }}
+                          <button
+                            className="btn btn-warning me-2"
+                            onClick={() => showModal(user)}
                           >
-                            <button
-                              className="btn btn-primary btn-sm"
-                              style={{ marginRight: "10px" }}
-                              onClick={() => showModal(user)}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              className="btn btn-danger btn-sm"
-                              onClick={() => {
-                                if (user?.id !== undefined) {
-                                  mutationDeleteUser.mutate(user.id.toString());
-                                }
-                              }}
-                            >
-                              Delete
-                            </button>
-                          </div>
+                            Edit
+                          </button>
+                          <button
+                            className="btn btn-danger"
+                            onClick={() =>
+                              user?.id &&
+                              mutationDeleteUser.mutate(user.id.toString())
+                            }
+                          >
+                            Delete
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -295,10 +309,9 @@ const TableUser: React.FC = () => {
                 </table>
               </div>
               <Pagination
-                align="center"
                 current={currentPage}
-                total={totalRow}
                 pageSize={pageSize}
+                total={totalRow}
                 onChange={handlePageChange}
               />
             </div>
@@ -307,35 +320,23 @@ const TableUser: React.FC = () => {
       </div>
       <Modal
         title={currentUser.id === 0 ? "Add User" : "Edit User"}
-        open={isModalVisible}
+        visible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
-        footer={[
-          <button
-            key="submit"
-            className="btn btn-primary"
-            style={{ marginRight: "20px" }}
-            onClick={handleOk}
-          >
-            {currentUser.id === 0 ? "Add" : "Edit"}
-          </button>,
-          <button
-            key="cancel"
-            className="btn btn-secondary"
-            onClick={handleCancel}
-          >
-            Cancel
-          </button>,
-        ]}
       >
-        <Form layout="vertical" form={form}>
+        <Form
+          form={form}
+          layout="vertical"
+          name="userForm"
+          initialValues={currentUser}
+        >
           <Form.Item
             label="Name"
+            name="name"
             rules={[
-              { required: true, message: "Please enter the name" },
               {
-                pattern: wordRegExp,
-                message: "Name should not contain special characters",
+                required: true,
+                message: "Please input the user's name!",
               },
             ]}
           >
@@ -346,9 +347,16 @@ const TableUser: React.FC = () => {
           </Form.Item>
           <Form.Item
             label="Email"
+            name="email"
             rules={[
-              { required: true, message: "Please enter the email" },
-              { pattern: emailRegExp, message: "Invalid email format" },
+              {
+                required: true,
+                message: "Please input the user's email!",
+              },
+              {
+                pattern: emailRegExp,
+                message: "Please enter a valid email!",
+              },
             ]}
           >
             <Input
@@ -358,9 +366,16 @@ const TableUser: React.FC = () => {
           </Form.Item>
           <Form.Item
             label="Phone"
+            name="phone"
             rules={[
-              { required: true, message: "Please enter the phone number" },
-              { pattern: phoneRegExp, message: "Invalid phone number" },
+              {
+                required: true,
+                message: "Please input the user's phone number!",
+              },
+              {
+                pattern: phoneRegExp,
+                message: "Please enter a valid phone number!",
+              },
             ]}
           >
             <Input
@@ -368,19 +383,16 @@ const TableUser: React.FC = () => {
               onChange={(e) => handleInputChange(e, "phone")}
             />
           </Form.Item>
-          <Form.Item
-            label="Birthday"
-            rules={[{ required: true, message: "Please select the birthday" }]}
-          >
+          <Form.Item label="Birthday" name="birthday">
             <DatePicker
-              format="YYYY-MM-DD"
               value={
-                currentUser?.birthday ? dayjs(currentUser?.birthday) : null
+                currentUser.birthday ? parseISO(currentUser.birthday) : null
               }
+              format="yyyy-MM-dd"
               onChange={handleDateChange}
             />
           </Form.Item>
-          <Form.Item label="Gender">
+          <Form.Item label="Gender" name="gender">
             <Select
               value={currentUser.gender}
               onChange={handleGenderChange}
@@ -390,10 +402,7 @@ const TableUser: React.FC = () => {
               ]}
             />
           </Form.Item>
-          <Form.Item
-            label="Role"
-            rules={[{ required: true, message: "Please select a role" }]}
-          >
+          <Form.Item label="Role" name="role">
             <Select
               value={currentUser.role}
               onChange={handleRoleChange}
@@ -401,6 +410,12 @@ const TableUser: React.FC = () => {
                 { value: "admin", label: "Admin" },
                 { value: "user", label: "User" },
               ]}
+            />
+          </Form.Item>
+          <Form.Item label="Password" name="password">
+            <Input.Password
+              value={currentUser.password}
+              onChange={(e) => handleInputChange(e, "password")}
             />
           </Form.Item>
         </Form>

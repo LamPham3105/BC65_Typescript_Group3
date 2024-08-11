@@ -120,7 +120,19 @@ const TableLocation: React.FC = () => {
   const handleOk = async () => {
     try {
       await form.validateFields();
+
+      // Kiểm tra lỗi file trước khi gửi
+      if (file && !validateImageFile(file)) {
+        setImageError("Only .jpg and .png files are allowed.");
+        return;
+      }
+
       if (currentLocation.id === 0) {
+        // Đảm bảo chọn file khi thêm mới
+        if (!file) {
+          setImageError("Please select an image file.");
+          return;
+        }
         mutationPostLocate.mutate(currentLocation);
       } else {
         mutationUpdateLocate.mutate({
@@ -128,6 +140,7 @@ const TableLocation: React.FC = () => {
           id: currentLocation.id.toString(),
         });
       }
+
       setIsModalVisible(false);
     } catch (error) {
       console.log("Validation Failed:", error);
@@ -169,7 +182,10 @@ const TableLocation: React.FC = () => {
         setImageError(null);
       } else {
         setImageError("Only .jpg and .png files are allowed.");
+        setFile(null); // Reset file if not valid
       }
+    } else {
+      setFile(null); // Reset file if no file selected
     }
   };
 
@@ -322,15 +338,11 @@ const TableLocation: React.FC = () => {
           </Form.Item>
           <Form.Item
             label="Image"
-            rules={[
-              {
-                required: false,
-                message: "Only .jpg and .png files are allowed",
-              },
-            ]}
+            name="hinhAnh"
+            validateStatus={imageError ? "error" : ""}
+            help={imageError}
           >
             <Input type="file" onChange={handleFileChange} accept=".jpg,.png" />
-            {imageError && <span className="text-danger">{imageError}</span>}
           </Form.Item>
         </Form>
       </Modal>

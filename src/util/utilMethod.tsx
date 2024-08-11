@@ -50,9 +50,10 @@ export const numberRegExpLength = (maxLength: number) =>
   new RegExp(`^\\d{1,${maxLength}}$`);
 
 // Validate image file
-export const validateImageFile = (file: File) => {
-  const validTypes = ["image/jpeg", "image/png"];
-  return validTypes.includes(file.type);
+export const validImageTypes = ["image/jpeg", "image/png"];
+
+export const validateImageFile = (file: File): boolean => {
+  return validImageTypes.includes(file.type);
 };
 export const validatePassword = (password: string): boolean => {
   const passwordRegExp = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,12}$/;
