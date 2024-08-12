@@ -57,7 +57,7 @@ const TableUser: React.FC = () => {
     queryKey: ["listUsers", currentPage, pageSize, searchTerm],
     queryFn: async () => {
       try {
-        const response = await userApi.getUser(
+        const response = await userApi.getUserByPage(
           currentPage,
           pageSize,
           searchTerm
