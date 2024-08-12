@@ -1,11 +1,4 @@
 import { httpClient } from "../../util/util";
-import {
-  USER_LOGIN,
-  TOKEN_AUTHOR,
-  setDataJsonStorage,
-  setDataTextStorage,
-  setCookie,
-} from "../../util/utilMethod";
 
 export class AdminApi {
   async postRegisterAdmin(adminData: object) {

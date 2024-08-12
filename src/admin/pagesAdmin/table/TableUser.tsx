@@ -63,7 +63,7 @@ const TableUser: React.FC = () => {
     queryKey: ["listUsers", currentPage, pageSize],
     queryFn: async () => {
       try {
-        const response = await userApi.getUser(currentPage, pageSize);
+        const response = await userApi.getUserByPage(currentPage, pageSize);
         if (response && response.data) {
           return {
             data: response.data,
@@ -118,7 +118,7 @@ const TableUser: React.FC = () => {
 
   const mutationDeleteUser = useMutation({
     mutationFn: (id: string) => userApi.deleteUser(id),
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["listUsers", currentPage, pageSize],
       });

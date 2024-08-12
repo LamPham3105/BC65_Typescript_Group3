@@ -6,11 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
 import { DispatchType } from "../../../redux/store";
 import { showNotification } from "../../../redux/reducers/notificationReducer";
-import {
-  numberRegExp,
-  validateNoSpecialChars,
-  wordRegExp,
-} from "../../../util/utilMethod";
+import { validateNoSpecialChars, wordRegExp } from "../../../util/utilMethod";
 
 const TableLocation: React.FC = () => {
   const dispatch: DispatchType = useDispatch();
@@ -77,7 +73,7 @@ const TableLocation: React.FC = () => {
       }
       fetchLocations();
     },
-    onError: (error) => {
+    onError: () => {
       dispatch(showNotification("Failed to add location"));
     },
   });

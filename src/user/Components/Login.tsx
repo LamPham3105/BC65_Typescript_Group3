@@ -40,7 +40,7 @@ const Login: React.FC = () => {
         dispatch(showNotification("Incorrect password or username"));
       }
     },
-    onError: (error) => {},
+    onError: () => {},
   });
 
   const validationSchema = Yup.object().shape({

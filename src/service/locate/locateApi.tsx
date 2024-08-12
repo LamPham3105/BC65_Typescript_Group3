@@ -1,5 +1,4 @@
 import { httpClient } from "../../util/util";
-import { getDataJsonStorage } from "../../util/utilMethod";
 
 export class LocateApi {
   async getLocate() {

@@ -1,7 +1,5 @@
 import { Spin } from "antd";
 
-type Props = {};
-
 const Loading: React.FC = () => {
   return (
     <div

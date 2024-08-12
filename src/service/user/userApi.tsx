@@ -26,7 +26,14 @@ export class UserApi {
     } catch (error) {}
   }
 
-  async getUser(pageIndex = 1, pageSize = 10, keyword = "") {
+  async getUser() {
+    try {
+      const res = await httpClient.get("/api/users");
+      return res.data.content;
+    } catch (error) {}
+  }
+
+  async getUserByPage(pageIndex = 1, pageSize = 10, keyword = "") {
     try {
       const res = await httpClient.get("/api/users/phan-trang-tim-kiem", {
         params: {

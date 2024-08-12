@@ -119,7 +119,7 @@ const TableRoom: React.FC = () => {
       }
       fetchRooms();
     },
-    onError: (error) => {},
+    onError: () => {},
   });
 
   const mutationUpdateRoom = useMutation({
@@ -137,7 +137,7 @@ const TableRoom: React.FC = () => {
   const mutationRoomImage = useMutation({
     mutationFn: (data: { image: File; id: string }) =>
       roomApi.postRoomImage(data.image, data.id),
-    onSuccess: (data) => {
+    onSuccess: () => {
       dispatch(showNotification("Upload success"));
     },
     onError: () => {
@@ -147,7 +147,7 @@ const TableRoom: React.FC = () => {
 
   const mutationDeleteRoom = useMutation({
     mutationFn: (id: string) => roomApi.deleteRoom(id),
-    onSuccess: (data) => {
+    onSuccess: () => {
       fetchRooms();
     },
     onError: () => {},

@@ -13,7 +13,6 @@ const UserMenu: React.FC = () => {
   const { userLogin } = useSelector((state: RootState) => state.userReducer);
 
   const [showMenu, setShowMenu] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<"login" | "register">("login");
 
   const handleMenuToggle = () => {
     setShowMenu(!showMenu);
@@ -33,7 +32,6 @@ const UserMenu: React.FC = () => {
   };
 
   const handleTabSwitch = (tab: "login" | "register") => {
-    setActiveTab(tab);
     setTimeout(() => {
       const targetTab = document.querySelector(
         `#${tab}-tab`

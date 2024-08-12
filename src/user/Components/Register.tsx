@@ -26,10 +26,10 @@ const Register: React.FC = () => {
 
   const mutation = useMutation({
     mutationFn: userApi.postRegisterUser,
-    onSuccess: (data) => {
+    onSuccess: () => {
       navigate(0);
     },
-    onError: (error) => {},
+    onError: () => {},
   });
 
   const validationSchema = Yup.object().shape({

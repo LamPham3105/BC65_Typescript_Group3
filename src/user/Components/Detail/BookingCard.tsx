@@ -6,7 +6,7 @@ import { RootState } from "../../../redux/store";
 import { convertDateAndTime } from "../../../util/utilMethod";
 import { showNotification } from "../../../redux/reducers/notificationReducer";
 import { Modal } from "antd";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { roomApi } from "../../../service/room/roomApi";
 import useRoute from "../../../hook/useRoute";
 
@@ -18,8 +18,6 @@ const BookingCard: React.FC<BookingCardProps> = ({
   isBooking,
   idBooking,
 }) => {
-  const queryClient = useQueryClient();
-
   const { navigate } = useRoute();
   const dispatch = useDispatch();
 

@@ -1,10 +1,5 @@
 import axios from "axios";
-import {
-  TOKEN_AUTHOR,
-  TOKEN_WEB,
-  USER_LOGIN,
-  getDataTextStorage,
-} from "../util/utilMethod";
+import { TOKEN_WEB, USER_LOGIN, getDataTextStorage } from "../util/utilMethod";
 import { routeLink } from "../App";
 import { UserData } from "../Model/Model";
 
