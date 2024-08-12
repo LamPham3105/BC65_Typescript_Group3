@@ -9,14 +9,11 @@ import { userApi } from "../../../service/user/userApi";
 import { UserData } from "../../../Model/Manage";
 import { Form, Input, Modal, Pagination, Select, notification } from "antd";
 import {
-  wordRegExp,
   emailRegExp,
   phoneRegExp,
   birthRegExp,
   validatePassword,
 } from "../../../util/utilMethod"; // import birthRegExp
-
-import { parseISO, isValid, format } from "date-fns";
 
 import Loading from "../../../user/Components/Antd/Loading";
 
@@ -26,7 +23,7 @@ const TableUser: React.FC = () => {
   const queryClient = useQueryClient();
 
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [isModalVisible, setIsModalVisible] = React.useState(false);
   const [currentUser, setCurrentUser] = useState<UserData>({
     id: 0,
     name: "",
@@ -116,7 +113,7 @@ const TableUser: React.FC = () => {
 
   const mutationDeleteUser = useMutation({
     mutationFn: (id: string) => userApi.deleteUser(id),
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["listUsers", currentPage, pageSize, searchTerm],
       });
@@ -182,7 +179,6 @@ const TableUser: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement>,
     field: string
   ) => {
-    const value = field === "birthday" ? e.target.value : e.target.value;
     setCurrentUser((prevUser) => ({
       ...prevUser,
       [field]: e.target.value,
@@ -201,21 +197,6 @@ const TableUser: React.FC = () => {
       ...prevUser,
       role: value,
     }));
-  };
-
-  const handleDateChange = (date: any, dateString: string | string[]) => {
-    const validDateString = Array.isArray(dateString)
-      ? dateString[0]
-      : dateString;
-
-    if (date && isValid(date.toDate())) {
-      setCurrentUser((prevUser) => ({
-        ...prevUser,
-        birthday: validDateString,
-      }));
-    } else {
-      console.log("Invalid date selected");
-    }
   };
 
   // Tìm kiếm
@@ -321,55 +302,31 @@ const TableUser: React.FC = () => {
           </div>
         </div>
       </div>
+
       <Modal
         title={currentUser.id === 0 ? "Add User" : "Edit User"}
         visible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
+        okText="Save"
+        cancelText="Cancel"
       >
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={{
-            name: currentUser.name,
-            email: currentUser.email,
-            phone: currentUser.phone,
-            birthday: currentUser.birthday
-              ? parseISO(currentUser.birthday)
-              : undefined,
-            gender: currentUser.gender,
-            role: currentUser.role,
-            password: currentUser.password,
-          }}
-        >
+        <Form form={form} layout="vertical">
           <Form.Item
-            label="Name"
             name="name"
-            rules={[
-              {
-                required: true,
-                message: "Please input your name!",
-              },
-              {
-                pattern: wordRegExp,
-                message: "Name cannot contain special characters!",
-              },
-            ]}
+            label="Name"
+            rules={[{ required: true, message: "Please input the name!" }]}
           >
             <Input
-              placeholder="Name"
               value={currentUser.name}
               onChange={(e) => handleInputChange(e, "name")}
             />
           </Form.Item>
           <Form.Item
-            label="Email"
             name="email"
+            label="Email"
             rules={[
-              {
-                required: true,
-                message: "Please input your email!",
-              },
+              { required: true, message: "Please input the email!" },
               {
                 pattern: emailRegExp,
                 message: "Invalid email format!",
@@ -377,39 +334,31 @@ const TableUser: React.FC = () => {
             ]}
           >
             <Input
-              placeholder="Email"
               value={currentUser.email}
               onChange={(e) => handleInputChange(e, "email")}
             />
           </Form.Item>
           <Form.Item
-            label="Phone"
             name="phone"
+            label="Phone"
             rules={[
-              {
-                required: true,
-                message: "Please input your phone number!",
-              },
+              { required: true, message: "Please input the phone!" },
               {
                 pattern: phoneRegExp,
-                message: "Invalid phone number format!",
+                message: "Invalid phone number!",
               },
             ]}
           >
             <Input
-              placeholder="Phone"
               value={currentUser.phone}
               onChange={(e) => handleInputChange(e, "phone")}
             />
           </Form.Item>
           <Form.Item
-            label="Birthday"
             name="birthday"
+            label="Birthday"
             rules={[
-              {
-                required: true,
-                message: "Please input your birthday!",
-              },
+              { required: true, message: "Please input the birthday!" },
               {
                 pattern: birthRegExp,
                 message: "Invalid date format!",
@@ -417,47 +366,36 @@ const TableUser: React.FC = () => {
             ]}
           >
             <Input
-              type="date"
               value={currentUser.birthday}
               onChange={(e) => handleInputChange(e, "birthday")}
             />
           </Form.Item>
-
-          <Form.Item label="Gender" name="gender">
-            <Select
-              placeholder="Select a gender"
-              value={currentUser.gender}
-              onChange={handleGenderChange}
-            >
+          <Form.Item
+            name="gender"
+            label="Gender"
+            initialValue={currentUser.gender}
+          >
+            <Select value={currentUser.gender} onChange={handleGenderChange}>
               <Select.Option value={true}>Male</Select.Option>
               <Select.Option value={false}>Female</Select.Option>
             </Select>
           </Form.Item>
-          <Form.Item label="Role" name="role">
-            <Select
-              placeholder="Select a role"
-              value={currentUser.role}
-              onChange={handleRoleChange}
-            >
+          <Form.Item name="role" label="Role" initialValue={currentUser.role}>
+            <Select value={currentUser.role} onChange={handleRoleChange}>
               <Select.Option value="admin">Admin</Select.Option>
               <Select.Option value="user">User</Select.Option>
             </Select>
           </Form.Item>
           <Form.Item
-            label="Password"
             name="password"
+            label="Password"
             rules={[
-              {
-                required: currentUser.id === 0,
-                message: "Please input your password!",
-              },
-              {
-                validator: validatePassword,
-              },
+              { required: true, message: "Please input the password!" },
+
+              { validator: validatePassword },
             ]}
           >
             <Input.Password
-              placeholder="Password"
               value={currentUser.password}
               onChange={(e) => handleInputChange(e, "password")}
             />

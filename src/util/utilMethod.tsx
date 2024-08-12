@@ -57,13 +57,16 @@ export const validateImageFile = (file: File): boolean => {
   return validImageTypes.includes(file.type);
 };
 export const validatePassword = (
-  rule: RuleObject,
+  _rule: RuleObject,
   value: string
 ): Promise<void> => {
   const passwordRegExp =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,12}$/;
+
   return new Promise((resolve, reject) => {
-    if (!value || passwordRegExp.test(value)) {
+    if (!value) {
+      reject("Please input your password!");
+    } else if (passwordRegExp.test(value)) {
       resolve();
     } else {
       reject(
