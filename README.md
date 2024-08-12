@@ -1,5 +1,3 @@
-Wild frames: https://www.canva.com/design/DAGNkAW3h8s/ym1XNiWWXIgI1GLHt-_wng/edit?utm_content=DAGNkAW3h8s&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
-
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

@@ -52,16 +52,23 @@ const TableLocation: React.FC = () => {
   };
 
   const showModal = (location?: Location) => {
-    setCurrentLocation(
-      location || {
+    if (location) {
+      setCurrentLocation(location);
+      form.setFieldsValue({
+        tenViTri: location.tenViTri,
+        tinhThanh: location.tinhThanh,
+        quocGia: location.quocGia,
+      });
+    } else {
+      setCurrentLocation({
         id: 0,
         tenViTri: "",
         tinhThanh: "",
         quocGia: "",
         hinhAnh: "",
-      }
-    );
-    form.resetFields();
+      });
+      form.resetFields();
+    }
     setIsModalVisible(true);
   };
 
@@ -116,7 +123,17 @@ const TableLocation: React.FC = () => {
   const handleOk = async () => {
     try {
       await form.validateFields();
+
+      if (file && !validateImageFile(file)) {
+        setImageError("Only .jpg and .png files are allowed.");
+        return;
+      }
+
       if (currentLocation.id === 0) {
+        if (!file) {
+          setImageError("Please select an image file.");
+          return;
+        }
         mutationPostLocate.mutate(currentLocation);
       } else {
         mutationUpdateLocate.mutate({
@@ -124,6 +141,7 @@ const TableLocation: React.FC = () => {
           id: currentLocation.id.toString(),
         });
       }
+
       setIsModalVisible(false);
     } catch (error) {
       console.log("Validation Failed:", error);
@@ -165,7 +183,10 @@ const TableLocation: React.FC = () => {
         setImageError(null);
       } else {
         setImageError("Only .jpg and .png files are allowed.");
+        setFile(null); // Reset file if not valid
       }
+    } else {
+      setFile(null); // Reset file if no file selected
     }
   };
 
@@ -208,30 +229,22 @@ const TableLocation: React.FC = () => {
                           />
                         </td>
                         <td>
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                            }}
+                          <button
+                            className="btn btn-warning btn-sm me-2"
+                            onClick={() => showModal(location)}
                           >
-                            <button
-                              className="btn btn-primary btn-sm"
-                              style={{ marginRight: "10px" }}
-                              onClick={() => showModal(location)}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              className="btn btn-danger btn-sm"
-                              onClick={() =>
-                                mutationDeleteLocate.mutate(
-                                  location.id.toString()
-                                )
-                              }
-                            >
-                              Delete
-                            </button>
-                          </div>
+                            Edit
+                          </button>
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() =>
+                              mutationDeleteLocate.mutate(
+                                location.id.toString()
+                              )
+                            }
+                          >
+                            Delete
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -318,15 +331,11 @@ const TableLocation: React.FC = () => {
           </Form.Item>
           <Form.Item
             label="Image"
-            rules={[
-              {
-                required: false,
-                message: "Only .jpg and .png files are allowed",
-              },
-            ]}
+            name="hinhAnh"
+            validateStatus={imageError ? "error" : ""}
+            help={imageError}
           >
             <Input type="file" onChange={handleFileChange} accept=".jpg,.png" />
-            {imageError && <span className="text-danger">{imageError}</span>}
           </Form.Item>
         </Form>
       </Modal>

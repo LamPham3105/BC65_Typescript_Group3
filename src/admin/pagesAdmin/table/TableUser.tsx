@@ -7,28 +7,20 @@ import {
 } from "@tanstack/react-query";
 import { userApi } from "../../../service/user/userApi";
 import { UserData } from "../../../Model/Manage";
+import { Form, Input, Modal, Pagination, Select, notification } from "antd";
 import {
-  DatePicker,
-  Form,
-  Input,
-  Modal,
-  Pagination,
-  Select,
-  notification,
-} from "antd";
-import { wordRegExp, emailRegExp, phoneRegExp } from "../../../util/utilMethod";
+  wordRegExp,
+  emailRegExp,
+  phoneRegExp,
+  birthRegExp,
+  validatePassword,
+} from "../../../util/utilMethod"; // import birthRegExp
 
-import dayjs, { Dayjs } from "dayjs";
-import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
-import utc from "dayjs/plugin/utc";
+import { parseISO, isValid, format } from "date-fns";
 
 import Loading from "../../../user/Components/Antd/Loading";
 
-// Cấu hình dayjs
-dayjs.extend(isSameOrBefore);
-dayjs.extend(isSameOrAfter);
-dayjs.extend(utc);
+import debounce from "lodash.debounce";
 
 const TableUser: React.FC = () => {
   const queryClient = useQueryClient();
@@ -41,11 +33,13 @@ const TableUser: React.FC = () => {
     email: "",
     phone: "",
     birthday: "",
-    gender: true, // Đảm bảo gender là boolean
+    gender: true,
     role: "",
     password: "",
     avatar: "",
   });
+
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   const [form] = Form.useForm();
   const pageSize = 6;
@@ -60,10 +54,14 @@ const TableUser: React.FC = () => {
     },
     Error
   > = useQuery({
-    queryKey: ["listUsers", currentPage, pageSize],
+    queryKey: ["listUsers", currentPage, pageSize, searchTerm],
     queryFn: async () => {
       try {
-        const response = await userApi.getUserByPage(currentPage, pageSize);
+        const response = await userApi.getUser(
+          currentPage,
+          pageSize,
+          searchTerm
+        );
         if (response && response.data) {
           return {
             data: response.data,
@@ -100,7 +98,7 @@ const TableUser: React.FC = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["listUsers", currentPage, pageSize],
+        queryKey: ["listUsers", currentPage, pageSize, searchTerm],
       });
       setIsModalVisible(false);
       notification.success({
@@ -118,9 +116,9 @@ const TableUser: React.FC = () => {
 
   const mutationDeleteUser = useMutation({
     mutationFn: (id: string) => userApi.deleteUser(id),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({
-        queryKey: ["listUsers", currentPage, pageSize],
+        queryKey: ["listUsers", currentPage, pageSize, searchTerm],
       });
     },
     onError: () => {},
@@ -144,7 +142,7 @@ const TableUser: React.FC = () => {
         avatar: "",
       }
     );
-    form.resetFields(); // Reset form trước khi mở modal
+    form.resetFields();
     form.setFieldsValue(
       user || {
         name: "",
@@ -156,15 +154,19 @@ const TableUser: React.FC = () => {
         password: "",
         avatar: "",
       }
-    ); // Cập nhật giá trị của form với currentUser
+    );
     setIsModalVisible(true);
   };
 
   const handleOk = () => {
     form
       .validateFields()
-      .then(() => {
-        mutation.mutate(currentUser);
+      .then((values) => {
+        setCurrentUser((prevUser) => ({
+          ...prevUser,
+          ...values,
+        }));
+        mutation.mutate({ ...currentUser, ...values });
       })
       .catch((errorInfo) => {
         console.log("Validation Failed:", errorInfo);
@@ -173,13 +175,14 @@ const TableUser: React.FC = () => {
 
   const handleCancel = () => {
     setIsModalVisible(false);
-    form.resetFields(); // Xóa giá trị khi đóng modal
+    form.resetFields();
   };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     field: string
   ) => {
+    const value = field === "birthday" ? e.target.value : e.target.value;
     setCurrentUser((prevUser) => ({
       ...prevUser,
       [field]: e.target.value,
@@ -200,24 +203,35 @@ const TableUser: React.FC = () => {
     }));
   };
 
-  const handleDateChange = (
-    date: Dayjs | null,
-    dateString: string | string[]
-  ) => {
-    // Handle dateString based on its type
+  const handleDateChange = (date: any, dateString: string | string[]) => {
     const validDateString = Array.isArray(dateString)
       ? dateString[0]
       : dateString;
 
-    if (date && date.isValid()) {
+    if (date && isValid(date.toDate())) {
       setCurrentUser((prevUser) => ({
         ...prevUser,
         birthday: validDateString,
       }));
     } else {
-      // Handle invalid date scenario if necessary
       console.log("Invalid date selected");
     }
+  };
+
+  // Tìm kiếm
+  const debouncedSearch = debounce((value: string) => {
+    setSearchTerm(value);
+  }, 300);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    debouncedSearch(e.target.value);
+  };
+
+  const handleSearch = () => {
+    setCurrentPage(1);
+    queryClient.invalidateQueries({
+      queryKey: ["listUsers", currentPage, pageSize, searchTerm],
+    });
   };
 
   if (queryResult.isLoading) {
@@ -240,6 +254,18 @@ const TableUser: React.FC = () => {
         <button className="btn btn-primary mb-5" onClick={() => showModal()}>
           Add User
         </button>
+        <div className="input-group mb-5" style={{ width: "33.33%" }}>
+          <input
+            type="text"
+            placeholder="Search ..."
+            className="form-control"
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+          <button className="btn btn-secondary" onClick={handleSearch}>
+            Search
+          </button>
+        </div>
         <div className="row">
           <div className="card">
             <div className="card-body">
@@ -264,30 +290,21 @@ const TableUser: React.FC = () => {
                         <td>{user?.phone}</td>
                         <td>{user?.role}</td>
                         <td>
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                            }}
+                          <button
+                            className="btn btn-warning btn-sm me-2"
+                            onClick={() => showModal(user)}
                           >
-                            <button
-                              className="btn btn-primary btn-sm"
-                              style={{ marginRight: "10px" }}
-                              onClick={() => showModal(user)}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              className="btn btn-danger btn-sm"
-                              onClick={() => {
-                                if (user?.id !== undefined) {
-                                  mutationDeleteUser.mutate(user.id.toString());
-                                }
-                              }}
-                            >
-                              Delete
-                            </button>
-                          </div>
+                            Edit
+                          </button>
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() =>
+                              user?.id &&
+                              mutationDeleteUser.mutate(user.id.toString())
+                            }
+                          >
+                            Delete
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -295,10 +312,9 @@ const TableUser: React.FC = () => {
                 </table>
               </div>
               <Pagination
-                align="center"
                 current={currentPage}
-                total={totalRow}
                 pageSize={pageSize}
+                total={totalRow}
                 onChange={handlePageChange}
               />
             </div>
@@ -307,100 +323,143 @@ const TableUser: React.FC = () => {
       </div>
       <Modal
         title={currentUser.id === 0 ? "Add User" : "Edit User"}
-        open={isModalVisible}
+        visible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
-        footer={[
-          <button
-            key="submit"
-            className="btn btn-primary"
-            style={{ marginRight: "20px" }}
-            onClick={handleOk}
-          >
-            {currentUser.id === 0 ? "Add" : "Edit"}
-          </button>,
-          <button
-            key="cancel"
-            className="btn btn-secondary"
-            onClick={handleCancel}
-          >
-            Cancel
-          </button>,
-        ]}
       >
-        <Form layout="vertical" form={form}>
+        <Form
+          form={form}
+          layout="vertical"
+          initialValues={{
+            name: currentUser.name,
+            email: currentUser.email,
+            phone: currentUser.phone,
+            birthday: currentUser.birthday
+              ? parseISO(currentUser.birthday)
+              : undefined,
+            gender: currentUser.gender,
+            role: currentUser.role,
+            password: currentUser.password,
+          }}
+        >
           <Form.Item
             label="Name"
+            name="name"
             rules={[
-              { required: true, message: "Please enter the name" },
+              {
+                required: true,
+                message: "Please input your name!",
+              },
               {
                 pattern: wordRegExp,
-                message: "Name should not contain special characters",
+                message: "Name cannot contain special characters!",
               },
             ]}
           >
             <Input
+              placeholder="Name"
               value={currentUser.name}
               onChange={(e) => handleInputChange(e, "name")}
             />
           </Form.Item>
           <Form.Item
             label="Email"
+            name="email"
             rules={[
-              { required: true, message: "Please enter the email" },
-              { pattern: emailRegExp, message: "Invalid email format" },
+              {
+                required: true,
+                message: "Please input your email!",
+              },
+              {
+                pattern: emailRegExp,
+                message: "Invalid email format!",
+              },
             ]}
           >
             <Input
+              placeholder="Email"
               value={currentUser.email}
               onChange={(e) => handleInputChange(e, "email")}
             />
           </Form.Item>
           <Form.Item
             label="Phone"
+            name="phone"
             rules={[
-              { required: true, message: "Please enter the phone number" },
-              { pattern: phoneRegExp, message: "Invalid phone number" },
+              {
+                required: true,
+                message: "Please input your phone number!",
+              },
+              {
+                pattern: phoneRegExp,
+                message: "Invalid phone number format!",
+              },
             ]}
           >
             <Input
+              placeholder="Phone"
               value={currentUser.phone}
               onChange={(e) => handleInputChange(e, "phone")}
             />
           </Form.Item>
           <Form.Item
             label="Birthday"
-            rules={[{ required: true, message: "Please select the birthday" }]}
+            name="birthday"
+            rules={[
+              {
+                required: true,
+                message: "Please input your birthday!",
+              },
+              {
+                pattern: birthRegExp,
+                message: "Invalid date format!",
+              },
+            ]}
           >
-            <DatePicker
-              format="YYYY-MM-DD"
-              value={
-                currentUser?.birthday ? dayjs(currentUser?.birthday) : null
-              }
-              onChange={handleDateChange}
+            <Input
+              type="date"
+              value={currentUser.birthday}
+              onChange={(e) => handleInputChange(e, "birthday")}
             />
           </Form.Item>
-          <Form.Item label="Gender">
+
+          <Form.Item label="Gender" name="gender">
             <Select
+              placeholder="Select a gender"
               value={currentUser.gender}
               onChange={handleGenderChange}
-              options={[
-                { value: true, label: "Male" },
-                { value: false, label: "Female" },
-              ]}
-            />
+            >
+              <Select.Option value={true}>Male</Select.Option>
+              <Select.Option value={false}>Female</Select.Option>
+            </Select>
           </Form.Item>
-          <Form.Item
-            label="Role"
-            rules={[{ required: true, message: "Please select a role" }]}
-          >
+          <Form.Item label="Role" name="role">
             <Select
+              placeholder="Select a role"
               value={currentUser.role}
               onChange={handleRoleChange}
-              options={[
-                { value: "admin", label: "Admin" },
-                { value: "user", label: "User" },
-              ]}
+            >
+              <Select.Option value="admin">Admin</Select.Option>
+              <Select.Option value="user">User</Select.Option>
+            </Select>
+          </Form.Item>
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={[
+              {
+                required: currentUser.id === 0,
+                message: "Please input your password!",
+              },
+              {
+                validator: validatePassword,
+              },
+            ]}
+          >
+            <Input.Password
+              placeholder="Password"
+              value={currentUser.password}
+              onChange={(e) => handleInputChange(e, "password")}
             />
           </Form.Item>
         </Form>
