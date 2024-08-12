@@ -1,4 +1,5 @@
 import * as jwtDecode from "jwt-decode";
+import { RuleObject } from "antd/es/form";
 
 const TOKEN_AUTHOR = "accessToken";
 const USER_LOGIN = "userLogin";
@@ -55,9 +56,21 @@ export const validImageTypes = ["image/jpeg", "image/png"];
 export const validateImageFile = (file: File): boolean => {
   return validImageTypes.includes(file.type);
 };
-export const validatePassword = (password: string): boolean => {
-  const passwordRegExp = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,12}$/;
-  return passwordRegExp.test(password);
+export const validatePassword = (
+  rule: RuleObject,
+  value: string
+): Promise<void> => {
+  const passwordRegExp =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,12}$/;
+  return new Promise((resolve, reject) => {
+    if (!value || passwordRegExp.test(value)) {
+      resolve();
+    } else {
+      reject(
+        "Mật khẩu phải chứa ít nhất một chữ cái viết hoa, một chữ cái viết thường, một số, một ký tự đặc biệt, và có độ dài từ 6 đến 12 ký tự."
+      );
+    }
+  });
 };
 
 const getDataTextStorage = (storeName: string) => {

@@ -281,28 +281,21 @@ const TableRoom: React.FC = () => {
                           />
                         </td>
                         <td>
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                            }}
+                          <button
+                            className="btn btn-warning btn-sm me-2"
+                            style={{ marginRight: "10px" }}
+                            onClick={() => showModal(room)}
                           >
-                            <button
-                              className="btn btn-primary btn-sm"
-                              style={{ marginRight: "10px" }}
-                              onClick={() => showModal(room)}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              className="btn btn-danger btn-sm"
-                              onClick={() =>
-                                mutationDeleteRoom.mutate(room.id.toString())
-                              }
-                            >
-                              Delete
-                            </button>
-                          </div>
+                            Edit
+                          </button>
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() =>
+                              mutationDeleteRoom.mutate(room.id.toString())
+                            }
+                          >
+                            Delete
+                          </button>
                         </td>
                       </tr>
                     ))}
